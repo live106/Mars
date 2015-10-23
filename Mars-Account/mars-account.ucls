@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.8" icons="true" automaticImage="PNG" always-add-relationships="true" generalizations="true" 
+  realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
+  <class id="1" language="java" name="com.live106.mars.account.config.AccountAppConfig" project="Mars-Account" 
+    file="/Mars-Account/src/main/java/com/live106/mars/account/config/AccountAppConfig.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="117" width="218" x="750" y="230"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="false" static="true"/>      
+      <operations public="true" package="true" protected="true" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="com.live106.mars.account.service.UserService" project="Mars-Account" 
+    file="/Mars-Account/src/main/java/com/live106/mars/account/service/UserService.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="225" width="213" x="41" y="230"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="false" static="true"/>      
+      <operations public="true" package="true" protected="true" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="com.live106.mars.master.processor.UserProcessor" project="Mars-Account" 
+    file="/Mars-Account/src/main/java/com/live106/mars/master/processor/UserProcessor.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="153" width="458" x="41" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="false" static="true"/>      
+      <operations public="true" package="true" protected="true" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="com.live106.mars.account.AccountRunner" project="Mars-Account" 
+    file="/Mars-Account/src/main/java/com/live106/mars/account/AccountRunner.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="121" x="539" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="false" static="true"/>      
+      <operations public="true" package="true" protected="true" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="com.live106.mars.protocol.pojo.ProtocolPeer2Peer" project="Mars-Protocol" 
+    file="/Mars-Protocol/src/main/java/com/live106/mars/protocol/pojo/ProtocolPeer2Peer.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="117" width="141" x="304" y="230"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="false" static="true"/>      
+      <operations public="true" package="true" protected="true" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="com.live106.mars.protocol.queue.ProtocolMessage" project="Mars-Protocol" 
+    file="/Mars-Protocol/src/main/java/com/live106/mars/protocol/queue/ProtocolMessage.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="153" width="274" x="485" y="505"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="false" static="true"/>      
+      <operations public="true" package="true" protected="true" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="com.live106.mars.client.ProtocolMessageClientDispacher" project="Mars-Client" 
+    file="/Mars-Client/src/main/java/com/live106/mars/client/ProtocolMessageClientDispacher.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="117" width="225" x="485" y="230"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="false" static="true"/>      
+      <operations public="true" package="true" protected="true" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <dependency id="8">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <dependency id="9">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="false" static="true"/>    
+    <operations public="true" package="true" protected="true" private="false" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
