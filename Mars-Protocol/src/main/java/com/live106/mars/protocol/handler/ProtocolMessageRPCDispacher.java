@@ -7,11 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.live106.mars.protocol.handler.annotation.ProcessorMethod;
 import com.live106.mars.protocol.queue.ProtocolMQ;
 import com.live106.mars.protocol.queue.ProtocolMessage;
+import com.live106.mars.util.LoggerHelper;
 
 /**
  * @author live106 @creation Oct 9, 2015
@@ -19,6 +22,9 @@ import com.live106.mars.protocol.queue.ProtocolMessage;
  */
 @Service
 public class ProtocolMessageRPCDispacher {
+	
+	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageRPCDispacher.class);
+	
 	private volatile Map<Integer, MessageProcessor<?>> messageProcessors = new ConcurrentHashMap<>();
 	private volatile Map<Integer, String> messageHashes = new ConcurrentHashMap<>();
 	private static ExecutorService executor = Executors.newCachedThreadPool();
@@ -50,7 +56,7 @@ public class ProtocolMessageRPCDispacher {
 					if (message != null) {
 						executor.submit(() -> {
 							
-							System.err.println(Thread.currentThread().getName() + " handling message " + Integer.toHexString(message.getPojo().getProtocolHash()) + "-->" + messageHashes.get(message.getPojo().getProtocolHash()));
+							LoggerHelper.debug(logger, ()->String.format("%s handling message %s-->%d", Thread.currentThread().getName(), Integer.toHexString(message.getPojo().getProtocolHash()), messageHashes.get(message.getPojo().getProtocolHash())));
 							
 							MessageProcessor<?> messageProcessor = messageProcessors.get(message.getPojo().getProtocolHash());
 							if (messageProcessor != null) {
@@ -60,6 +66,8 @@ public class ProtocolMessageRPCDispacher {
 									//FIXME log
 									e.printStackTrace();
 								}
+							} else {
+								LoggerHelper.debug(logger, ()->String.format("%s no handler found for message %s-->%d", Thread.currentThread().getName(), Integer.toHexString(message.getPojo().getProtocolHash()), messageHashes.get(message.getPojo().getProtocolHash())));
 							}
 						});
 					}
@@ -105,8 +113,9 @@ public class ProtocolMessageRPCDispacher {
 	public Map<Integer, MessageProcessor<?>> getMessageProcessors() {
 		return messageProcessors;
 	}
-	public void setMessageProcessors(Map<Integer, MessageProcessor<?>> messageProcessors) {
-		this.messageProcessors = messageProcessors;
+	
+	public Map<Integer, String> getMessageHashes() {
+		return messageHashes;
 	}
 
 }

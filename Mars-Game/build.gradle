@@ -54,6 +54,8 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter")
 	compile("org.apache.thrift:libthrift:0.9.2")
     compile("mysql:mysql-connector-java:5.1.36")
+    
+    compile("redis.clients:jedis:2.7.2")
 	
 	
     // The production code uses the SLF4J logging API at compile time

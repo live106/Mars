@@ -1,21 +1,27 @@
 package com.live106.mars.client.processor;
 
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.live106.mars.client.ClientGroupRunner;
-import com.live106.mars.client.ClientRunner;
 import com.live106.mars.client.service.ClientService;
 import com.live106.mars.protocol.handler.ProtocolProcessor;
 import com.live106.mars.protocol.handler.annotation.Processor;
@@ -27,6 +33,7 @@ import com.live106.mars.protocol.thrift.PeerType;
 import com.live106.mars.protocol.thrift.RequestSendClientPublicKey;
 import com.live106.mars.protocol.thrift.RequestUserLogin;
 import com.live106.mars.protocol.thrift.ResponseAuthServerPublicKey;
+import com.live106.mars.protocol.thrift.ResponseGameConnect;
 import com.live106.mars.protocol.thrift.ResponseSendClientPublicKey;
 import com.live106.mars.protocol.thrift.ResponseUserLogin;
 import com.live106.mars.protocol.thrift.ReuqestGameConnect;
@@ -45,6 +52,8 @@ import io.netty.channel.ChannelHandlerContext;
 @Scope(value="prototype")
 public class ClientProcessor implements ProtocolProcessor {
 	
+	private final static Logger logger = LoggerFactory.getLogger(ClientProcessor.class);
+	
 	@Autowired
 	private ClientService clientService;
 	private byte[] serverPubKey;
@@ -52,6 +61,7 @@ public class ClientProcessor implements ProtocolProcessor {
 	private Map<String, Object> keyMap;
 	
 	private Cryptor cryptor = new Cryptor(Cryptor.AES);
+	private AtomicInteger sequeceId = new AtomicInteger(1);
 	
 	@ProcessorMethod(messageClass = ResponseAuthServerPublicKey.class)
 	public ProtocolBase receiveServerPublicKey(ChannelHandlerContext context, ResponseAuthServerPublicKey response) throws TException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, IllegalStateException {
@@ -105,7 +115,6 @@ public class ClientProcessor implements ProtocolProcessor {
 			break;
 		}
 		
-		
 		String msg = response.getMsg();
 //		String uid = response.getUid();
 //		String secureKey = response.getSecureKey();
@@ -113,7 +122,7 @@ public class ClientProcessor implements ProtocolProcessor {
 		
 		clientService.setLoginResponse(response);
 		
-		System.err.println(code.name() + ":" + msg);
+		logger.info("login {}, {}", code.name(), msg);
 		
 		ReuqestGameConnect request = new ReuqestGameConnect();
 		
@@ -121,7 +130,31 @@ public class ClientProcessor implements ProtocolProcessor {
 		protocol.getHeader().setTargetType(PeerType.PEER_TYPE_GAME);
 //		protocol.setTargetType(PeerType.PEER_TYPE_GAME);
 //		protocol.setTargetId(gameserver);
+		
+		request.setPassport(response.getPassport());
+		
+		request.setUid(response.getUid());
+		request.setGameserver("");
+		request.setSequenceId(sequeceId.getAndIncrement());
+		
+		String checkString = String.format("%s%d%d", request.getGameserver(), request.getUid(), request.getSequenceId());
+		Cryptor cryptor = new Cryptor(Cryptor.AES);
+		cryptor.setSecretKey(response.getSecureKey());
+		try {
+			byte[] encryptData = cryptor.doCrypt(checkString.getBytes(), Cipher.ENCRYPT_MODE);
+			request.setRandomKey(Base64.getEncoder().encodeToString(encryptData));
+		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
+				| BadPaddingException | InvalidAlgorithmParameterException e) {
+			e.printStackTrace();
+		}
+		
 		return ProtocolSerializer.serialize(request, protocol);
+	}
+	
+	@ProcessorMethod(messageClass = ResponseGameConnect.class)
+	public ProtocolBase receiveGameConnect(ChannelHandlerContext context, ResponseGameConnect response) throws TException {
+		
+		return null;
 	}
 
 	public void setServerService(ClientService serverService) {

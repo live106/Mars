@@ -11,19 +11,22 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.live106.mars.client.ClientGroupRunner;
 import com.live106.mars.client.ClientRunner;
+import com.live106.mars.util.LoggerHelper;
 
 public class ConsoleHandler {
+	
+	private final static Logger logger = LoggerFactory.getLogger(ConsoleHandler.class);
+	
 	private static final String HELP_FOOTER = "footer";
-
 	private static final String HELP_HEADER = "header";
-
 	private static final String START = "start";
 
 	private CommandLineParser commandParser = new DefaultParser();
@@ -39,15 +42,22 @@ public class ConsoleHandler {
 	}
 
 	public void handleCommand(String command, PrintWriter writer) throws ParseException {
-		System.err.println(command);
+		
+		LoggerHelper.debug(logger, ()->String.format("input command %s", command));
+		
 		String cmd = command;
 		CommandLine line = null;
 		Options options = null;
 		if (command.indexOf(" ") > 0) {
 			cmd = command.substring(0, command.indexOf(" "));
 			String[] arguments = command.substring(command.indexOf(" ") + 1).split(" ");
+			if (arguments == null) {
+				arguments = new String[0];
+			}
 			options = commandOption.get(cmd);
-			line = commandParser.parse(options, arguments);
+			if (options != null) {
+				line = commandParser.parse(options, arguments);
+			}
 		}
 		try {
 			switch (cmd) {

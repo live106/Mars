@@ -26,6 +26,7 @@ import com.live106.mars.protocol.handler.MessageProcessor;
 import com.live106.mars.protocol.handler.ProtocolMessageRPCDispacher;
 import com.live106.mars.protocol.pojo.IProtocol;
 import com.live106.mars.protocol.thrift.IUserService;
+import com.live106.mars.protocol.thrift.game.IGamePlayerService;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -50,11 +51,23 @@ public class MasterApplication {
 	
 	@Autowired
 	private IUserService.Iface userRpcClient;
+	@Autowired
+	private IGamePlayerService.Iface playerRpcClient;
 	
 	@Bean
 	public TServiceClientBeanProxyFactory userRpcClient() {
 		try {
 			return new TServiceClientBeanProxyFactory(GlobalConfig.accountRpcHost, GlobalConfig.accountRpcPort, IUserService.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Bean
+	public TServiceClientBeanProxyFactory playerRpcClient() {
+		try {
+			return new TServiceClientBeanProxyFactory(GlobalConfig.gameRpcHost, GlobalConfig.gameRpcPort, IGamePlayerService.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -76,13 +89,23 @@ public class MasterApplication {
 //		threadAccRpcClient.join();
 		
 		Map<Integer, MessageProcessor<?>> processors = protocolMessageRPCDispacher.getMessageProcessors();
+		Map<Integer, String> hashes = protocolMessageRPCDispacher.getMessageHashes();
 		
+		//FIXME reconstruction 
 		Method[] methods = IUserService.Iface.class.getDeclaredMethods();
 		for (Method method : methods) {
 			String messageName = method.getParameterTypes()[0].getSimpleName();
 			MessageProcessor<IUserService.Iface> messageProcessor = new MessageProcessor<IUserService.Iface>(userRpcClient, method, messageName);
 			processors.put(messageName.hashCode(), messageProcessor);
-				
+			hashes.put(messageName.hashCode(), messageName);
+		}
+		
+		methods = IGamePlayerService.Iface.class.getDeclaredMethods();
+		for (Method method : methods) {
+			String messageName = method.getParameterTypes()[0].getSimpleName();
+			MessageProcessor<IGamePlayerService.Iface> messageProcessor = new MessageProcessor<IGamePlayerService.Iface>(playerRpcClient, method, messageName);
+			processors.put(messageName.hashCode(), messageProcessor);
+			hashes.put(messageName.hashCode(), messageName);
 		}
 	}
 	

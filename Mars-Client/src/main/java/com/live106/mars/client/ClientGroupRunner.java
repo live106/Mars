@@ -3,9 +3,12 @@
  */
 package com.live106.mars.client;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -21,6 +24,8 @@ import com.live106.mars.client.console.Console;
 @Service
 public class ClientGroupRunner {
 	
+	private final static Logger logger = LoggerFactory.getLogger(ClientGroupRunner.class);
+	
 	@Autowired
 	public ConfigurableApplicationContext springContext;
 	public static ConfigurableApplicationContext ctx;
@@ -35,6 +40,8 @@ public class ClientGroupRunner {
 		ctx = SpringApplication.run(ClientAppConfig.class, args);
 		
 		Console.open();
+		
+		logger.info("ClientGroup server started at {}.", new Date().toString());
 		
 //		testBeanScope(ctx);
 	}

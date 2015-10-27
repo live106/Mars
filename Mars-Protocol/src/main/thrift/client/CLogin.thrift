@@ -55,16 +55,25 @@ struct ResponseUserLogin
 //登录服务器相关结束
 //*************************
 
+//*************************
+//登录游戏器相关开始
+//*************************
 struct ReuqestGameConnect
 {
 	1: string gameserver,
-	2: string uid,
+	2: required i32 uid,
 	3: i32	sequenceId,
-	4: string randomKey//encrypt(gameserver+uid+sequeceId)
+	4: string randomKey//encrypt(gameserver+uid+sequeceId) by ResponseUserLogin.secureKey
+	5: required string passport,
 }
 
 struct ResponseGameConnect
 {
-	1: bool	result,
-	2: string msg
+	1: required bool result,
+	2: string msg,
+	3: i32 playerid,
+	4: string randomName
 }
+//*************************
+//登录游戏器相关结束
+//*************************

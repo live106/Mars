@@ -50,28 +50,6 @@ public class AccountAppConfig {
 	@Autowired
 	private UserServiceRpc userServiceRpc;
 
-//	@PostConstruct
-//	public void connectMaster() {
-//		int port = 9090;
-//		try {
-//			TTransport transport = new TSocket("localhost", port);
-//			transport.open();
-//			
-//			TProtocol protocol = new TBinaryProtocol(transport);
-//			TMultiplexedProtocol mProtocol = new TMultiplexedProtocol(protocol, UserService.class.getSimpleName());
-//
-//			UserService.Client master = new UserService.Client(mProtocol);
-//
-//			String s = master.ping("account1");
-//			System.err.println(s);
-//			s = master.ping("account2");
-//			System.err.println(s);
-//
-//		} catch (TException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
 	@PostConstruct
 	public void init() {
 		new Thread(thriftServer).start();

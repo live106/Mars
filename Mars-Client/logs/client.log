@@ -1,0 +1,18 @@
+13:37:58.627 [main] INFO  c.l.mars.client.ClientGroupRunner - Starting ClientGroupRunner on dell-PC with PID 8924 (E:\workspace\Server\Projects\Mars-Client\bin started by dell in E:\workspace\Server\Projects\Mars-Client) 
+13:37:58.651 [main] INFO  o.s.c.a.AnnotationConfigApplicationContext - Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@6e2c9341: startup date [Tue Oct 27 13:37:58 CST 2015]; root of context hierarchy 
+13:37:58.867 [main] INFO  c.l.mars.client.ClientGroupRunner - Started ClientGroupRunner in 0.39 seconds (JVM running for 0.783) 
+13:37:58.875 [ConsoleListener-Thread] INFO  c.l.mars.client.console.Console - Open Mars Client Console at port 8888 
+13:41:12.333 [main] INFO  c.l.mars.client.ClientGroupRunner - Starting ClientGroupRunner on dell-PC with PID 8448 (E:\workspace\Server\Projects\Mars-Client\bin started by dell in E:\workspace\Server\Projects\Mars-Client) 
+13:41:12.356 [main] INFO  o.s.c.a.AnnotationConfigApplicationContext - Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@77a57272: startup date [Tue Oct 27 13:41:12 CST 2015]; root of context hierarchy 
+13:41:12.574 [main] INFO  c.l.mars.client.ClientGroupRunner - Started ClientGroupRunner in 0.39 seconds (JVM running for 0.768) 
+13:41:12.575 [main] INFO  c.l.mars.client.ClientGroupRunner - ClientGroup server started at Tue Oct 27 13:41:12 CST 2015. 
+13:41:12.584 [ConsoleListener-Thread] INFO  c.l.mars.client.console.Console - Open Mars Client Console at port 8888 
+13:43:41.759 [main] INFO  c.l.mars.client.ClientGroupRunner - Starting ClientGroupRunner on dell-PC with PID 8584 (E:\workspace\Server\Projects\Mars-Client\bin started by dell in E:\workspace\Server\Projects\Mars-Client) 
+13:43:41.784 [main] INFO  o.s.c.a.AnnotationConfigApplicationContext - Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@77a57272: startup date [Tue Oct 27 13:43:41 CST 2015]; root of context hierarchy 
+13:43:42.001 [main] INFO  c.l.mars.client.ClientGroupRunner - Started ClientGroupRunner in 0.389 seconds (JVM running for 0.766) 
+13:43:42.002 [main] INFO  c.l.mars.client.ClientGroupRunner - ClientGroup server started at Tue Oct 27 13:43:42 CST 2015. 
+13:43:42.010 [ConsoleListener-Thread] INFO  c.l.mars.client.console.Console - Open Mars Client Console at port 8888 
+13:45:21.769 [Thread-4] INFO  c.l.m.c.processor.ClientProcessor - login ERROR, 用户名或密码错误！ 
+13:45:21.769 [Thread-5] INFO  c.l.m.c.processor.ClientProcessor - login ERROR, 用户名或密码错误！ 
+13:57:16.011 [Thread-10] INFO  c.l.m.c.processor.ClientProcessor - login ERROR, 用户名或密码错误！ 
+13:57:16.016 [Thread-12] INFO  c.l.m.c.processor.ClientProcessor - login ERROR, 用户名或密码错误！ 

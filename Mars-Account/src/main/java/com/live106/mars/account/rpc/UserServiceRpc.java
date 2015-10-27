@@ -12,6 +12,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import com.live106.mars.account.bean.UserPassport;
 import com.live106.mars.account.db.model.User;
 import com.live106.mars.account.service.RpcClientService;
 import com.live106.mars.account.service.UserService;
+import com.live106.mars.common.thrift.TServiceClientBeanProxyFactory;
 import com.live106.mars.protocol.thrift.IUserService.Iface;
 import com.live106.mars.protocol.thrift.LoginCode;
 import com.live106.mars.protocol.thrift.RequestAuthServerPublicKey;
@@ -28,6 +31,7 @@ import com.live106.mars.protocol.thrift.ResponseAuthServerPublicKey;
 import com.live106.mars.protocol.thrift.ResponseSendClientPublicKey;
 import com.live106.mars.protocol.thrift.ResponseUserLogin;
 import com.live106.mars.protocol.thrift.game.MessagePlayerSecureInfo;
+import com.live106.mars.util.LoggerHelper;
 
 /**
  * @author live106 @creation Oct 16, 2015
@@ -35,6 +39,9 @@ import com.live106.mars.protocol.thrift.game.MessagePlayerSecureInfo;
  */
 @Service
 public class UserServiceRpc implements Iface {
+	
+	private final static Logger logger = LoggerFactory.getLogger(UserServiceRpc.class);
+	
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -65,7 +72,8 @@ public class UserServiceRpc implements Iface {
 //			userService.generateSecretKey(channelId, clientPubKey);
 			userService.storeClientAesKey(channelId, clientPubKey);
 			
-			System.err.println("receive client pub key : " + channelId + "-->" + clientPubKey);
+			LoggerHelper.debug(logger, ()->String.format("received client public %s-->%s",  channelId, clientPubKey));
+			
 			result = true;
 //		} catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | IllegalStateException e) {
 //			e.printStackTrace();
@@ -112,12 +120,12 @@ public class UserServiceRpc implements Iface {
 				rpcClientService.getGamePlayerService().setPlayerSecureKey(secureInfo);
 			}
 			
-			System.err.println("client login : " + result + " " + channelId + ": " +  username + "/" + password);
+			logger.info("user {}/{} login {} through channel {}", username, password, result, channelId);
 			
 		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
 				| BadPaddingException | InvalidAlgorithmParameterException e) {
-			System.err.println("exception client : " + " " + channelId + ": " +  username + "/" + password);
-			e.printStackTrace();
+			
+			logger.error("user {}/{} login {} through channel {}", username, password, result, channelId, e);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

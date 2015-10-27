@@ -14,13 +14,14 @@ repositories {
     jcenter()
 }
 
-sourceSets { 
+sourceSets {
 	main { 
 		java { 
 			srcDir 'src/main/java'
 		}
 		resources {
-			exclude '**/*.properties' 
+			srcDir 'src/main/resources'
+			//exclude '**/*.properties' 
 		}
 	}	
 }

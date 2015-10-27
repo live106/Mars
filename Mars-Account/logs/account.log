@@ -1,0 +1,101 @@
+13:44:59.085 [main] INFO  c.l.mars.account.AccountRunner - Starting AccountRunner on dell-PC with PID 6324 (E:\workspace\Server\Projects\Mars-Account\bin started by dell in E:\workspace\Server\Projects\Mars-Account) 
+13:44:59.116 [main] INFO  o.s.c.a.AnnotationConfigApplicationContext - Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@4d339552: startup date [Tue Oct 27 13:44:59 CST 2015]; root of context hierarchy 
+13:44:59.350 [main] WARN  o.s.b.f.s.DefaultListableBeanFactory - Bean creation exception on FactoryBean type check: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'userMapper' defined in file [E:\workspace\Server\Projects\Mars-Account\bin\com\live106\mars\account\db\mapper\UserMapper.class]: Unsatisfied dependency expressed through bean property 'sqlSessionFactory': : Error creating bean with name 'sqlSessionFactory' defined in com.live106.mars.account.config.AccountAppConfig: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.apache.ibatis.session.SqlSessionFactory]: Circular reference involving containing bean 'accountAppConfig' - consider declaring the factory method as static for independence from its containing instance. Factory method 'sqlSessionFactory' threw exception; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSource' defined in com.live106.mars.account.config.AccountAppConfig: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [javax.sql.DataSource]: Circular reference involving containing bean 'accountAppConfig' - consider declaring the factory method as static for independence from its containing instance. Factory method 'dataSource' threw exception; nested exception is java.lang.NullPointerException; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sqlSessionFactory' defined in com.live106.mars.account.config.AccountAppConfig: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.apache.ibatis.session.SqlSessionFactory]: Circular reference involving containing bean 'accountAppConfig' - consider declaring the factory method as static for independence from its containing instance. Factory method 'sqlSessionFactory' threw exception; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSource' defined in com.live106.mars.account.config.AccountAppConfig: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [javax.sql.DataSource]: Circular reference involving containing bean 'accountAppConfig' - consider declaring the factory method as static for independence from its containing instance. Factory method 'dataSource' threw exception; nested exception is java.lang.NullPointerException 
+13:44:59.357 [main] INFO  o.s.j.d.DriverManagerDataSource - Loaded JDBC driver: com.mysql.jdbc.Driver 
+13:44:59.537 [main] INFO  c.l.mars.account.AccountRunner - Started AccountRunner in 0.606 seconds (JVM running for 1.093) 
+13:44:59.538 [main] INFO  c.l.mars.account.AccountRunner - Account server started at Tue Oct 27 13:44:59 CST 2015. 
+13:45:21.754 [pool-1-thread-2] INFO  c.l.mars.account.rpc.UserServiceRpc - user admin/admin login false through channel 3085a9fffe9312d9-000018e0-00000002-28dce70cfeae5125-26abac75 
+13:45:21.754 [pool-1-thread-1] INFO  c.l.mars.account.rpc.UserServiceRpc - user admin/admin login false through channel 3085a9fffe9312d9-000018e0-00000001-d6081b0cfeae5124-2d41e455 
+13:57:16.005 [pool-1-thread-2] INFO  c.l.mars.account.rpc.UserServiceRpc - user admin/admin login false through channel 3085a9fffe9312d9-000018e0-00000004-d28b97e5a52539bb-c646e27a 
+13:57:16.010 [pool-1-thread-1] INFO  c.l.mars.account.rpc.UserServiceRpc - user admin/admin login false through channel 3085a9fffe9312d9-000018e0-00000003-368be7e5a52539bb-e02cbb1c 
+14:26:14.014 [pool-1-thread-4] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+14:51:27.334 [pool-1-thread-4] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+14:53:47.302 [pool-1-thread-4] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:01:49.405 [pool-1-thread-5] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:09:14.388 [pool-1-thread-5] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:13:38.471 [pool-1-thread-3] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:19:42.398 [pool-1-thread-5] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:27:37.433 [pool-1-thread-4] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:30:07.976 [pool-1-thread-4] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:30:33.256 [pool-1-thread-5] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:32:34.120 [pool-1-thread-5] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:33:18.015 [pool-1-thread-5] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]
+15:33:56.720 [pool-1-thread-5] ERROR o.a.thrift.server.TThreadPoolServer - Thrift error occurred during processing of message. 
+org.apache.thrift.TException: This should not have happened!?
+	at org.apache.thrift.TMultiplexedProcessor.process(TMultiplexedProcessor.java:97) ~[libthrift-0.9.2.jar:0.9.2]
+	at org.apache.thrift.server.TThreadPoolServer$WorkerProcess.run(TThreadPoolServer.java:285) ~[libthrift-0.9.2.jar:0.9.2]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_60]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_60]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_60]

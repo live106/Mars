@@ -109,11 +109,11 @@ public class MasterService {
 			ServerData server = getServer((byte) targetType.getValue(), serverId);
 			if (server == null) {
 //				ReferenceCountUtil.release(pojo.getByteBuf());
-				logger.debug(String.format("server[%d,%d] not found.", targetType.getValue(), serverId));
+//				logger.debug(String.format("server[%d,%d] not found.", targetType.getValue(), serverId));
 				//FIXME
 			} else if (!server.context.channel().isActive()) {
 //				ReferenceCountUtil.release(pojo.getByteBuf());
-				logger.debug(String.format("server[%d,%d] context channel is not active.", targetType.getValue(), serverId));
+//				logger.debug(String.format("server[%d,%d] context channel is not active.", targetType.getValue(), serverId));
 				//FIXME unregiserServer
 			} else {
 				server.context.writeAndFlush(pojo);

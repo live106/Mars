@@ -28,5 +28,9 @@ public class GameCacheManager {
 		secureInfos.put(secureInfo.getUid(), secureInfo);
 		return true;
 	}
+
+	public MessagePlayerSecureInfo getPlayerSecureInfo(Integer uid) {
+		return secureInfos.get(uid);
+	}
 	
 }

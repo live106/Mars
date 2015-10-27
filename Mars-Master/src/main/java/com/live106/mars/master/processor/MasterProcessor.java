@@ -33,7 +33,7 @@ public class MasterProcessor implements ProtocolProcessor {
 	private MasterService masterService;
 
 	@ProcessorMethod(messageClass = RequestServerLogin.class)
-	public ProtocolBase severRegister(ChannelHandlerContext context, RequestServerLogin request) throws TException {
+	public ProtocolBase serverRegister(ChannelHandlerContext context, RequestServerLogin request) throws TException {
 		boolean result = masterService.registerAndOverwrite(context, request);
 		
 		ResponseServerLogin resp = new ResponseServerLogin();
