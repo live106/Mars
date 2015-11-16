@@ -3,6 +3,11 @@
  */
 package com.live106.mars.game.config;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
@@ -24,9 +29,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import com.live106.mars.concurrent.MarsDefaultThreadFactory;
 import com.live106.mars.game.rpc.GamePlayerServiceRpc;
+import com.live106.mars.game.rpc.GameStoreServiceRpc;
 import com.live106.mars.protocol.config.GlobalConfig;
 import com.live106.mars.protocol.thrift.game.IGamePlayerService;
+import com.live106.mars.protocol.thrift.game.IGameStoreService;
+
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSentinelPool;
 
 /**
  * @author live106 @creation Oct 8, 2015
@@ -34,18 +45,19 @@ import com.live106.mars.protocol.thrift.game.IGamePlayerService;
  */
 @Configuration
 @MapperScan({ "com.live106.mars.game.db.mapper" })
-@ComponentScan(basePackages = { "com.live106.mars.game.util", "com.live106.mars.game", "com.live106.mars.game.service",
-		"com.live106.mars.game.rpc", "com.live106.mars.cache.game"})
+@ComponentScan(basePackages = { "com.live106.mars.game", "com.live106.mars.cache.game"})
 @PropertySource("classpath:/datasource.properties")
 public class GameAppConfig {
 	@Autowired
 	private Environment env;
 	@Autowired
 	private GamePlayerServiceRpc gamePlayerServiceRpc;
+	@Autowired
+	private GameStoreServiceRpc gameStoreServiceRpc;
 
 	@PostConstruct
 	public void init() {
-		new Thread(thriftServer).start();
+		new Thread(thriftServer, "thrift-server-game").start();
 	}
 
 	Runnable thriftServer = new Runnable() {
@@ -53,9 +65,26 @@ public class GameAppConfig {
 			try {
 				TServerTransport transport = new TServerSocket(GlobalConfig.gameRpcPort);
 				TMultiplexedProcessor processor = new TMultiplexedProcessor();
+				
+				//TODO reconstruction with reflection
 				processor.registerProcessor(IGamePlayerService.class.getSimpleName(), new IGamePlayerService.Processor<IGamePlayerService.Iface>(gamePlayerServiceRpc));
+				processor.registerProcessor(IGameStoreService.class.getSimpleName(), new IGameStoreService.Processor<IGameStoreService.Iface>(gameStoreServiceRpc));
 
-				TServer server = new TThreadPoolServer(new Args(transport).processor(processor));
+				TServer server = new TThreadPoolServer(new Args(transport)
+						.processor(processor)
+						.maxWorkerThreads(10)
+//						.executorService(new ThreadPoolExecutor(10, 10, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new RejectedExecutionHandler() {
+//						
+//							@Override
+//							public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+//								//FIXME handle the rejection
+//								System.err.println("rejection!");
+//							}
+//						}))
+						.executorService(Executors.newCachedThreadPool(new MarsDefaultThreadFactory("thrift-pool-game")))
+						.requestTimeout(3)
+						.requestTimeoutUnit(TimeUnit.SECONDS)
+						);
 
 				server.serve();
 			} catch (TTransportException e) {
@@ -80,9 +109,15 @@ public class GameAppConfig {
 		sqlSessionFactory.setDataSource(dataSource());
 		return (SqlSessionFactory) sqlSessionFactory.getObject();
 	}
+	
+	@Bean
+	public JedisSentinelPool sentinelPool() {
+		Set<String> sentinels = new HashSet<>();
+		sentinels.add(GlobalConfig.redisSentinelHost + ":" + GlobalConfig.redisSentinelPort);
+		JedisPoolConfig poolConfig = new JedisPoolConfig();
+		JedisSentinelPool sentinelPool = new JedisSentinelPool("mymaster", sentinels, poolConfig, 5000);
 
-	public void setGamePlayerServiceRpc(GamePlayerServiceRpc gamePlayerServiceRpc) {
-		this.gamePlayerServiceRpc = gamePlayerServiceRpc;
+		return sentinelPool;
 	}
 
 }

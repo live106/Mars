@@ -35,7 +35,6 @@ public class AccountRunner {
 		
 		logger.info("Account server started at {}.", new Date().toString());
 	}
-	
 
 //	private static void testMybatisSpring() {
 //		//test bean injection

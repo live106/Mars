@@ -6,12 +6,16 @@ package com.live106.mars.game.rpc;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +23,8 @@ import com.live106.mars.game.service.PlayerService;
 import com.live106.mars.protocol.thrift.ResponseGameConnect;
 import com.live106.mars.protocol.thrift.ReuqestGameConnect;
 import com.live106.mars.protocol.thrift.game.IGamePlayerService.Iface;
-import com.live106.mars.protocol.thrift.game.MessagePlayerSecureInfo;
+import com.live106.mars.util.LoggerHelper;
+import com.live106.mars.protocol.thrift.game.MessageUserSecureInfo;
 
 /**
  * @author live106 @creation Oct 23, 2015
@@ -27,6 +32,8 @@ import com.live106.mars.protocol.thrift.game.MessagePlayerSecureInfo;
  */
 @Service
 public class GamePlayerServiceRpc implements Iface {
+	
+	private static final Logger logger = LoggerFactory.getLogger(GamePlayerServiceRpc.class);
 	
 	@Autowired
 	private PlayerService playerService;
@@ -37,29 +44,36 @@ public class GamePlayerServiceRpc implements Iface {
 	}
 
 	@Override
-	public boolean setPlayerSecureKey(MessagePlayerSecureInfo secureInfo) throws TException {
+	public boolean setPlayerSecureKey(MessageUserSecureInfo secureInfo) throws TException {
 		boolean result = playerService.addPlayerSecureInfo(secureInfo);
 		return result;
 	}
 
 	@Override
-	public ResponseGameConnect clientLogin(ReuqestGameConnect request) throws TException {
+	public Map<com.live106.mars.protocol.thrift.ResponseGameConnect,Boolean> clientLogin(ReuqestGameConnect request) throws TException {
 		ResponseGameConnect resp = new ResponseGameConnect();
 		try {
 			boolean result = playerService.checkUserConnect(request);
 			resp.setResult(result);
 			if (result) {
-				//¼ì²éÊÇ·ñÒÑÓÐ½ÇÉ«
-				//Éú³ÉËæ»ú½ÇÉ«Ãû³Æ,¼°½ÇÉ«id
-				resp.setMsg("Á¬½ÓÓÎÏ··þÎñÆ÷³É¹¦£¡");
+				//æ£€æŸ¥æ˜¯å¦å·²æœ‰è§’è‰²
+				//ç”Ÿæˆéšæœºè§’è‰²åç§°,åŠè§’è‰²id
+				resp.setMsg("è¿žæŽ¥æ¸¸æˆæœåŠ¡å™¨æˆåŠŸï¼");
 			} else {
-				resp.setMsg("Í¨ÐÐÖ¤ÎÞÐ§£¬ÇëÖØÐÂµÇÂ¼£¡");
+				resp.setMsg("é€šè¡Œè¯æ— æ•ˆï¼Œè¯·é‡æ–°ç™»å½•ï¼");
 			}
+			
+			LoggerHelper.debug(logger, () -> String.format("user %d connect to game server %s", request.getUid(), result));
+			
 		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
 				| BadPaddingException | InvalidAlgorithmParameterException e) {
 			e.printStackTrace();
 		}
-		return resp;
+		
+		Map<com.live106.mars.protocol.thrift.ResponseGameConnect,Boolean> retmap = new HashMap<>();
+		retmap.put(resp, true);
+		
+		return retmap;
 	}
 	
 	public void setPlayerService(PlayerService playerService) {

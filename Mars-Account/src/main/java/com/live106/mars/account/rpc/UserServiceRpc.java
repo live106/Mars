@@ -6,11 +6,16 @@ package com.live106.mars.account.rpc;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,19 +23,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.live106.mars.account.bean.UserPassport;
-import com.live106.mars.account.db.model.User;
-import com.live106.mars.account.service.RpcClientService;
+import com.live106.mars.account.redis.IRedisConstants;
+import com.live106.mars.account.service.RpcClientServiceFactory;
 import com.live106.mars.account.service.UserService;
-import com.live106.mars.common.thrift.TServiceClientBeanProxyFactory;
 import com.live106.mars.protocol.thrift.IUserService.Iface;
 import com.live106.mars.protocol.thrift.LoginCode;
+import com.live106.mars.protocol.thrift.LoginType;
 import com.live106.mars.protocol.thrift.RequestAuthServerPublicKey;
 import com.live106.mars.protocol.thrift.RequestSendClientPublicKey;
 import com.live106.mars.protocol.thrift.RequestUserLogin;
 import com.live106.mars.protocol.thrift.ResponseAuthServerPublicKey;
 import com.live106.mars.protocol.thrift.ResponseSendClientPublicKey;
 import com.live106.mars.protocol.thrift.ResponseUserLogin;
-import com.live106.mars.protocol.thrift.game.MessagePlayerSecureInfo;
+import com.live106.mars.protocol.thrift.game.MessageUserSecureInfo;
 import com.live106.mars.util.LoggerHelper;
 
 /**
@@ -38,14 +43,14 @@ import com.live106.mars.util.LoggerHelper;
  *
  */
 @Service
-public class UserServiceRpc implements Iface {
+public class UserServiceRpc implements Iface, IRedisConstants {
 	
 	private final static Logger logger = LoggerFactory.getLogger(UserServiceRpc.class);
 	
 	@Autowired
 	private UserService userService;
 	@Autowired
-	private RpcClientService rpcClientService;
+	private RpcClientServiceFactory rpcClientServiceFactory;
 
 	@Override
 	public String ping(String visitor) throws TException {
@@ -68,79 +73,212 @@ public class UserServiceRpc implements Iface {
 	public ResponseSendClientPublicKey sendPubKey(RequestSendClientPublicKey request, String channelId) throws TException {
 		boolean result = false;
 		String clientPubKey = request.getClientPubKey();
+		ResponseSendClientPublicKey resp = new ResponseSendClientPublicKey();
+		
+		if (StringUtils.isBlank(clientPubKey)) {
+			resp.setResult(false);
+			resp.setMsg("client public key is invalid." + clientPubKey);
+			return resp;
+		}
 //		try {
 //			userService.generateSecretKey(channelId, clientPubKey);
 			userService.storeClientAesKey(channelId, clientPubKey);
 			
-			LoggerHelper.debug(logger, ()->String.format("received client public %s-->%s",  channelId, clientPubKey));
+			LoggerHelper.debug(logger, ()->String.format("received client public key %s-->%s",  channelId, Arrays.toString(clientPubKey.getBytes())));
 			
 			result = true;
 //		} catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | IllegalStateException e) {
 //			e.printStackTrace();
 //		}
-		ResponseSendClientPublicKey resp = new ResponseSendClientPublicKey();
 		resp.setResult(result);
 		resp.setMsg("server has received client public key.");
 		return resp;
 	}
-
+	
+//Redis version
 	@Override
 	public ResponseUserLogin doLogin(RequestUserLogin request, String channelId) throws TException {
-		String username = "";
-		String password = "";
-		boolean result = false;
+		Map<String, String> usermap = null;
 		
 		ResponseUserLogin resp = new ResponseUserLogin();
 		try {
-			String encrytedUsername = request.getUsername();
-			String encrytedPassword = request.getPassword();
+			LoginType type = request.getType();
+			switch (type) {
+			case USER_ACCOUNT:
+//			{
+//				String encrytedUsername = request.getUsername();
+//				String encrytedPassword = request.getPassword();
+//				
+//				if (encrytedUsername == null || encrytedPassword == null) {
+//					break;
+//				}
+//				
+////				username = userService.decrypt(channelId, encrytedUsername);
+////				password = userService.decrypt(channelId, encrytedPassword);
+//				String username = userService.aesDecrypt(channelId, encrytedUsername);
+//				String password = userService.aesDecrypt(channelId, encrytedPassword);
+//				
+//				if (userService.checkPassword(username, password)) {
+//					user = userService.getUser(username);
+//				}
+//				break;
+//			}
+			case USER_GUEST:
+			{
+				String encrytedMachineId = request.getMachineId();
+				String machineId = null;
+				if (StringUtils.isEmpty(encrytedMachineId)) {
+					machineId = UUID.randomUUID().toString();
+				} else {
+					machineId = userService.aesDecrypt(channelId, encrytedMachineId);
+				}
+				if (userService.isValidMachineId(machineId)){
+					usermap = userService.loginByMachineId(machineId);
+					resp.setMachineId(machineId);
+				}
+				break;
+			}
+			case USER_THIRDPARTY:
+			{
+				break;
+			}
+			default:
+				break;
+			}
 			
-//			username = userService.decrypt(channelId, encrytedUsername);
-//			password = userService.decrypt(channelId, encrytedPassword);
-			username = userService.aesDecrypt(channelId, encrytedUsername);
-			password = userService.aesDecrypt(channelId, encrytedPassword);
-			
-			result = userService.checkPassword(username, password);
-			
-			if (result || true) {
-				User user = userService.getUser(username);
-				UserPassport passport = userService.generatePassport(user);
+			if (usermap != null) {
+				int userid = Integer.parseInt(usermap.get(additional_field_userid));
+				String username = usermap.get(field_user_name);
 				
-				resp.setUid(user.getId());
+				UserPassport passport = userService.generatePassport(userid, username, usermap.get(field_user_create_time));
+				
+				resp.setUid(userid);
 				resp.setPassport(passport.getIdentify());
 				resp.setSecureKey(passport.getSecureKey());
 				
-				MessagePlayerSecureInfo secureInfo = new MessagePlayerSecureInfo();
-				secureInfo.setUid(user.getId());
+				MessageUserSecureInfo secureInfo = new MessageUserSecureInfo();
+				secureInfo.setUid(userid);
 				secureInfo.setPassport(passport.getIdentify());
 				secureInfo.setSecureKey(passport.getSecureKey());
 				secureInfo.setChannelId(channelId);
 				
-				//game server RPC call
-				rpcClientService.getGamePlayerService().setPlayerSecureKey(secureInfo);
+				LoggerHelper.debug(logger, ()->String.format("User %d passport %s", userid, passport.getSecureKey()));
+				
+				//Game Server RPC call
+				boolean result = rpcClientServiceFactory.getGamePlayerService().setPlayerSecureKey(secureInfo);
+				
+				logger.info("User {}/{}/{} login through channel {}, notify game server %s", userid, username, usermap.get(field_user_machine_id), channelId, result);
+			} else {
+				resp.setUid(-1);
 			}
 			
-			logger.info("user {}/{} login {} through channel {}", username, password, result, channelId);
 			
 		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
 				| BadPaddingException | InvalidAlgorithmParameterException e) {
 			
-			logger.error("user {}/{} login {} through channel {}", username, password, result, channelId, e);
+			logger.error("User {}/{}/{} login decrypted failed through channel {}", request.getUsername(), request.getPassword(), request.getMachineId(), channelId, e);
+		}
+		catch (TimeoutException e) {
+			logger.error("User {}/{}/{} login decrypted failed through channel {}", request.getUsername(), request.getPassword(), request.getMachineId(), channelId, e);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("User {}/{}/{} login failed through channel {}", request.getUsername(), request.getPassword(), request.getMachineId(), channelId, e);
 		}
 		
-		resp.setCode(result ? LoginCode.OK : LoginCode.ERROR);
-		resp.setMsg(result ? "登陆成功！" : "用户名或密码错误！");
+		resp.setCode(usermap != null ? LoginCode.OK : LoginCode.ERROR);
+		resp.setMsg(usermap != null ? "登陆成功！" : "用户名或密码错误！");
+		
 		return resp;
 	}
+	
+// MySQL version	
+//	@Override
+//	public ResponseUserLogin doLogin(RequestUserLogin request, String channelId) throws TException {
+//		User user = null;
+//		
+//		ResponseUserLogin resp = new ResponseUserLogin();
+//		try {
+//			LoginType type = request.getType();
+//			switch (type) {
+//			case USER_ACCOUNT:
+//			{
+//				String encrytedUsername = request.getUsername();
+//				String encrytedPassword = request.getPassword();
+//				
+//				if (encrytedUsername == null || encrytedPassword == null) {
+//					break;
+//				}
+//				
+////				username = userService.decrypt(channelId, encrytedUsername);
+////				password = userService.decrypt(channelId, encrytedPassword);
+//				String username = userService.aesDecrypt(channelId, encrytedUsername);
+//				String password = userService.aesDecrypt(channelId, encrytedPassword);
+//				
+//				if (userService.checkPassword(username, password)) {
+//					user = userService.getUser(username);
+//				}
+//				break;
+//			}
+//			case USER_GUEST:
+//			{
+//				String encrytedMachineId = request.getMachineId();
+//				if (encrytedMachineId == null) {
+//					break;
+//				}
+//				String machineId = userService.aesDecrypt(channelId, encrytedMachineId);
+//				if (userService.isValidMachineId(machineId)){
+//					user = userService.loginByMachineId(machineId);
+//				}
+//				break;
+//			}
+//			case USER_THIRDPARTY:
+//			{
+//				break;
+//			}
+//			default:
+//				break;
+//			}
+//			
+//			if (user != null) {
+//				UserPassport passport = userService.generatePassport(user);
+//				
+//				resp.setUid(user.getId());
+//				resp.setPassport(passport.getIdentify());
+//				resp.setSecureKey(passport.getSecureKey());
+//				
+//				MessagePlayerSecureInfo secureInfo = new MessagePlayerSecureInfo();
+//				secureInfo.setUid(user.getId());
+//				secureInfo.setPassport(passport.getIdentify());
+//				secureInfo.setSecureKey(passport.getSecureKey());
+//				secureInfo.setChannelId(channelId);
+//				
+//				//game server RPC call
+//				rpcClientServiceFactory.getGamePlayerService().setPlayerSecureKey(secureInfo);
+//				
+//				logger.info("User {}/{}/{}/{} login through channel {}", user.getId(), user.getUsername(), user.getPassword(), user.getMachineid(), channelId);
+//			} else {
+//				resp.setUid(-1);
+//			}
+//			
+//			
+//		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
+//				| BadPaddingException | InvalidAlgorithmParameterException e) {
+//			
+//			logger.error("User {}/{}/{} login decrypted failed through channel {}", request.getUsername(), request.getPassword(), request.getMachineId(), channelId, e);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		resp.setCode(user != null ? LoginCode.OK : LoginCode.ERROR);
+//		resp.setMsg(user != null ? "登陆成功！" : "用户名或密码错误！");
+//		return resp;
+//	}
 	
 	public void setUserService(UserService userService) {
 		this.userService = userService;
 	}
 
-	public void setRpcClientService(RpcClientService rpcClientService) {
-		this.rpcClientService = rpcClientService;
+	public void setRpcClientServiceFactory(RpcClientServiceFactory rpcClientServiceFactory) {
+		this.rpcClientServiceFactory = rpcClientServiceFactory;
 	}
 
 }

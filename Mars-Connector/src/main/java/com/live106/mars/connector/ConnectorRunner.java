@@ -41,7 +41,23 @@ public class ConnectorRunner {
 				b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
 						.handler(new LoggingHandler(LogLevel.INFO))
 						.childHandler(new ConnectorInitializer(REMOTE_HOST, REMOTE_PORT))
-						.childOption(ChannelOption.AUTO_READ, false).bind(LOCAL_PORT).sync().channel().closeFuture()
+						.childOption(ChannelOption.AUTO_READ, false)
+						
+						.childOption(ChannelOption.TCP_NODELAY, true)
+						.childOption(ChannelOption.SO_KEEPALIVE, true)
+//						.childOption(ChannelOption.SO_BACKLOG, 128)
+						/*
+						.childOption(ChannelOption.SO_SNDBUF, 8192)
+						.childOption(ChannelOption.SO_RCVBUF, 8192)
+						.childOption(ChannelOption.SO_TIMEOUT, 5000)
+						.childOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+						//在调用close方法后，将最多被阻塞n秒。在这n秒内，系统将尽量将未送出的数据包发送出去；如果超过了n秒，如果还有未发送的数据包，这些数据包将全部被丢弃；而close方法会立即返回。如果将linger设为0，和关闭SO_LINGER选项的作用是一样的。
+						.childOption(ChannelOption.SO_LINGER, 0)
+						.childOption(ChannelOption.SO_REUSEADDR, true)
+						.childOption(ChannelOption.SO_BROADCAST, true)
+						*/
+						
+						.bind(LOCAL_PORT).sync().channel().closeFuture()
 						.sync();
 			} catch (Exception e) {
 				logger.error("Connector netty server started failed at {}.", new Date().toString(), e);
@@ -49,7 +65,7 @@ public class ConnectorRunner {
 				bossGroup.shutdownGracefully();
 				workerGroup.shutdownGracefully();
 			}
-		}).start();
+		}, "netty-server-connector").start();
 
 		logger.info("Connector server started at {}.", new Date().toString());
 		

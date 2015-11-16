@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.live106.mars.protocol.pojo.ProtocolBase;
 import com.live106.mars.protocol.queue.ProtocolMessage;
 
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -15,6 +16,7 @@ import io.netty.channel.ChannelHandlerContext;
  */
 @Service
 @Scope(value="prototype")
+@Sharable
 public class ClientProtocolHandler extends ChannelHandlerAdapter {
 	
 	private ClientRunner clientRunner;

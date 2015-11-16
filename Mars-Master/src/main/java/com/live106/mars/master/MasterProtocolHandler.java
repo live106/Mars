@@ -1,23 +1,21 @@
 package com.live106.mars.master;
 
-import com.live106.mars.master.channel.MasterChannelGroup;
 import com.live106.mars.protocol.pojo.ProtocolBase;
 import com.live106.mars.protocol.queue.ProtocolMQ;
 import com.live106.mars.protocol.queue.ProtocolMessage;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.concurrent.GlobalEventExecutor;
 
 public class MasterProtocolHandler extends ChannelHandlerAdapter {
 	
 	//FIXME reconstruct this
-	public static final MasterChannelGroup channelGroup = new MasterChannelGroup(GlobalEventExecutor.INSTANCE);
+//	public static final MasterChannelGroup channelGroup = new MasterChannelGroup(GlobalEventExecutor.INSTANCE);
 	
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		super.channelActive(ctx);
-		channelGroup.add(ctx.channel());
+//		channelGroup.add(ctx.channel());
 	}
 	
 	@Override

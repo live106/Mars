@@ -5,4 +5,7 @@ package com.live106.mars.protocol.handler;
  *
  */
 public interface ProtocolProcessor {
+	public void setListener(ProcessorListener listener);
+
+	public ProcessorListener getListener();
 }

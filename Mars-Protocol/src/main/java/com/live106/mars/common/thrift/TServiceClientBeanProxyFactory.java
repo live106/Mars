@@ -125,12 +125,22 @@ public class TServiceClientBeanProxyFactory implements FactoryBean<Object>, Init
 						if (RESTARTABLE_CAUSES.contains(te.getType())) {
 							reconnectOrThrowException(client.getInputProtocol().getTransport());
 							return method.invoke(client, args);
+						} else if (te.getCause() != null && te.getCause() instanceof ConnectException) {
+							reconnectOrThrowException(client.getInputProtocol().getTransport());
+							return method.invoke(client, args);
 						}
+						
+						LoggerHelper.error(logger, ()->String.format("rpc call %s.%s failed!", client, method), te);
+						
 					} else if (e.getTargetException() instanceof ConnectException) {
 						reconnectOrThrowException(client.getInputProtocol().getTransport());
 						return method.invoke(client, args);
 					}
-					throw e;
+					
+					LoggerHelper.error(logger, ()->String.format("rpc call %s.%s failed!", client, method), e.getTargetException());
+					
+					throw e.getTargetException();
+					
 				} finally {
 					pool.returnObject(client);
 				}

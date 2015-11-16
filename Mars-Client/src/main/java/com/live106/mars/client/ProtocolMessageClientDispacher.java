@@ -9,6 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TDeserializer;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.live106.mars.protocol.handler.ProtocolProcessor;
@@ -17,14 +20,23 @@ import com.live106.mars.protocol.pojo.ProtocolBase;
 import com.live106.mars.protocol.pojo.ProtocolPeer2Peer;
 import com.live106.mars.protocol.queue.ProtocolMessage;
 import com.live106.mars.protocol.thrift.PeerType;
+import com.live106.mars.protocol.thrift.ProtocolHeader;
 import com.live106.mars.protocol.thrift.SerializeType;
+import com.live106.mars.util.LoggerHelper;
+
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 
 /**
  * @author live106 @creation Oct 9, 2015
  *
  */
 @Service
+@Scope(value="prototype")
 public class ProtocolMessageClientDispacher {
+	
+	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageClientDispacher.class);
 
 	private Map<Integer, MessageProcessor> messageProcessors = new ConcurrentHashMap<>();
 	private Map<Integer, String> messageHashes = new ConcurrentHashMap<>();
@@ -43,7 +55,7 @@ public class ProtocolMessageClientDispacher {
 		try {
 			messageProcessor.invoke(message);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| ClassNotFoundException | InstantiationException | TException e) {
+				| ClassNotFoundException | InstantiationException | TException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -90,7 +102,15 @@ public class ProtocolMessageClientDispacher {
 	public void scanProcessor(Map<String, Object> processors) {
 		for (String s : processors.keySet()) {
 			Object obj = processors.get(s);
-
+			if (!(obj instanceof ProtocolProcessor)) {
+				LoggerHelper.debug(logger, () -> (String.format("%s is not a ProtocolProcessor!", obj.getClass())));
+				continue;
+			}
+			ProtocolProcessor processor = (ProtocolProcessor) obj;
+			if (processor.getListener() == null) {
+				LoggerHelper.debug(logger, () -> (String.format("%s has no listener!", obj.getClass())));
+				continue;
+			}
 			Map<String, Method> methods = getMethodsWithAnnotation(obj.getClass(), ProcessorMethod.class);
 			for (String messageName : methods.keySet()) {
 				MessageProcessor messageProcessor = new MessageProcessor((ProtocolProcessor) obj, methods.get(messageName));
@@ -124,7 +144,11 @@ public class ProtocolMessageClientDispacher {
 			this.method = method;
 		}
 
-		void invoke(ProtocolMessage message) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, InstantiationException, TException {
+		void invoke(ProtocolMessage message) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, InstantiationException, TException, InterruptedException {
+			ClientRunner runner = (ClientRunner) processor.getListener();
+			if (runner == null) {
+				return;
+			}
 			Object[] args = new Object[method.getParameterCount()];
 			
 			SerializeType serrializeType = message.getPojo().getSerializeType();
@@ -138,7 +162,9 @@ public class ProtocolMessageClientDispacher {
 					TDeserializer td = new TDeserializer();
 					td.deserialize(requestData, request.getData());
 					
-					args[0] = message.getContext();
+//					ChannelHandlerContext context = message.getContext();
+//					args[0] = context;
+					args[0] = null;
 					args[1] = requestData;
 					if (args.length > 2) {
 						args[2] = request;
@@ -146,17 +172,42 @@ public class ProtocolMessageClientDispacher {
 					
 					ProtocolBase response = (ProtocolBase) method.invoke(processor, args);
 					
+					Channel channel = runner.connectChannelFulture().channel();
+					
+					if (request.getHeader().isCloseSocket()) {
+						channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+						runner.doCloseSocket = true;
+//							message.getContext().close();
+					} 
+					
 					if (response != null) {
-						response.getHeader().setChannelId(request.getChannelId());
-						response.getHeader().setSourceType(request.getTargetType());
-						response.getHeader().setSourceId(request.getTargetId());
-						if (response.getHeader().getTargetId() <= 0) {
-							response.getHeader().setTargetId(request.getSourceId());
+						ProtocolHeader header = response.getHeader();
+						header.setChannelId(request.getChannelId());
+//						header.setSourceType(request.getTargetType());
+						if (header.getSourceId() < 0 && request.getTargetId() >= 0) {
+							header.setSourceId(request.getTargetId());
 						}
-						if (response.getHeader().getTargetType() == PeerType.PEER_TYPE_DEFAULT) {
-							response.getHeader().setTargetType(request.getSourceType());
+						if (header.getTargetId() <= 0) {
+							header.setTargetId(request.getSourceId());
 						}
-						message.getContext().writeAndFlush(response);
+						if (header.getTargetType() == PeerType.PEER_TYPE_DEFAULT) {
+							header.setTargetType(request.getSourceType());
+						}
+						
+						if (request.getHeader().isCloseSocket()) {
+//							runner.reconnect();
+							runner.doReconnect = true;
+							runner.connectChannelFulture().channel().writeAndFlush(response);
+//							runner.connectChannelFulture().addListener((ChannelFuture f) -> {
+//								if (f.isSuccess()) {
+//									f.channel().writeAndFlush(response);
+//								} else {
+//									//...
+//								}
+//							});
+						} else {
+							channel.writeAndFlush(response);
+						}
 					}
 					break;
 				}

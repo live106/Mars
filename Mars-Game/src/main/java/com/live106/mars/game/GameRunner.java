@@ -25,7 +25,7 @@ public class GameRunner {
 	public static void main(String[] args) {
 		SpringApplication.run(GameAppConfig.class, args);
 		
-		logger.info("Account server started at {}.", new Date().toString());
+		logger.info("Game server started at {}.", new Date().toString());
 		
 //		testDatabase();
 	}

@@ -27,6 +27,7 @@ import com.live106.mars.protocol.handler.ProtocolMessageRPCDispacher;
 import com.live106.mars.protocol.pojo.IProtocol;
 import com.live106.mars.protocol.thrift.IUserService;
 import com.live106.mars.protocol.thrift.game.IGamePlayerService;
+import com.live106.mars.protocol.thrift.game.IGameStoreService;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -37,8 +38,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakDetector.Level;
 
@@ -53,11 +52,13 @@ public class MasterApplication {
 	private IUserService.Iface userRpcClient;
 	@Autowired
 	private IGamePlayerService.Iface playerRpcClient;
+	@Autowired
+	private IGameStoreService.Iface gameStoreRpcClient;
 	
 	@Bean
 	public TServiceClientBeanProxyFactory userRpcClient() {
 		try {
-			return new TServiceClientBeanProxyFactory(GlobalConfig.accountRpcHost, GlobalConfig.accountRpcPort, IUserService.class);
+			return new TServiceClientBeanProxyFactory(GlobalConfig.accountHost, GlobalConfig.accountRpcPort, IUserService.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -67,7 +68,17 @@ public class MasterApplication {
 	@Bean
 	public TServiceClientBeanProxyFactory playerRpcClient() {
 		try {
-			return new TServiceClientBeanProxyFactory(GlobalConfig.gameRpcHost, GlobalConfig.gameRpcPort, IGamePlayerService.class);
+			return new TServiceClientBeanProxyFactory(GlobalConfig.gameHost, GlobalConfig.gameRpcPort, IGamePlayerService.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Bean
+	public TServiceClientBeanProxyFactory gameStoreRpcClient() {
+		try {
+			return new TServiceClientBeanProxyFactory(GlobalConfig.gameHost, GlobalConfig.gameRpcPort, IGameStoreService.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -79,11 +90,11 @@ public class MasterApplication {
 	
 	@PostConstruct
 	public void init() throws InterruptedException {
-		protocolMessageRPCDispacher.start(2);
+		protocolMessageRPCDispacher.start();
 		
 //		Thread threadAccRpcClient = new Thread(accountRpcClient);
 //		threadAccRpcClient.start();
-		new Thread(masterNettyServer).start();
+		new Thread(masterNettyServer, "netty-server-master").start();
 //		new Thread(thriftServer).start();
 
 //		threadAccRpcClient.join();
@@ -91,7 +102,7 @@ public class MasterApplication {
 		Map<Integer, MessageProcessor<?>> processors = protocolMessageRPCDispacher.getMessageProcessors();
 		Map<Integer, String> hashes = protocolMessageRPCDispacher.getMessageHashes();
 		
-		//FIXME reconstruction 
+		//FIXME reconstruction with reflection
 		Method[] methods = IUserService.Iface.class.getDeclaredMethods();
 		for (Method method : methods) {
 			String messageName = method.getParameterTypes()[0].getSimpleName();
@@ -104,6 +115,14 @@ public class MasterApplication {
 		for (Method method : methods) {
 			String messageName = method.getParameterTypes()[0].getSimpleName();
 			MessageProcessor<IGamePlayerService.Iface> messageProcessor = new MessageProcessor<IGamePlayerService.Iface>(playerRpcClient, method, messageName);
+			processors.put(messageName.hashCode(), messageProcessor);
+			hashes.put(messageName.hashCode(), messageName);
+		}
+		
+		methods = IGameStoreService.Iface.class.getDeclaredMethods();
+		for (Method method : methods) {
+			String messageName = method.getParameterTypes()[0].getSimpleName();
+			MessageProcessor<IGameStoreService.Iface> messageProcessor = new MessageProcessor<IGameStoreService.Iface>(gameStoreRpcClient, method, messageName);
 			processors.put(messageName.hashCode(), messageProcessor);
 			hashes.put(messageName.hashCode(), messageName);
 		}
@@ -154,19 +173,19 @@ public class MasterApplication {
 			try {
 				ServerBootstrap b = new ServerBootstrap();
 				b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-						.handler(new LoggingHandler(LogLevel.INFO))
+						// .handler(new LoggingHandler(LogLevel.INFO))
+						.option(ChannelOption.SO_BACKLOG, 128)
+						.childOption(ChannelOption.TCP_NODELAY, true)
+						.childOption(ChannelOption.SO_KEEPALIVE, true)
 						.childHandler(new ChannelInitializer<SocketChannel>() {
-
 					@Override
 					protected void initChannel(SocketChannel ch) throws Exception {
-						ch.pipeline().addLast(
-								new LengthFieldPrepender(4, true), 
-								new LoggingHandler(LogLevel.INFO),
+						ch.pipeline().addLast(new LengthFieldPrepender(4, true),
 								new LengthFieldBasedFrameDecoder(IProtocol.MAX_LENGTH, 0, 4, -4, 4),
 								new MasterProtocolDecoder(), new ProtocolEncoder(), new MasterProtocolHandler());
 					}
 
-				}).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
+				});
 
 				ChannelFuture f = b.bind(GlobalConfig.masterNettyPort).sync();
 

@@ -13,7 +13,7 @@ import com.live106.mars.protocol.thrift.game.IGamePlayerService;
  *
  */
 @Service
-public class RpcClientService {
+public class RpcClientServiceFactory {
 	
 	@Autowired
 	private IGamePlayerService.Iface gamePlayerService;

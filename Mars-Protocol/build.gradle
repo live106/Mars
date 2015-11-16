@@ -21,7 +21,7 @@ sourceSets {
 		}
 		resources {
 			srcDir 'src/main/resources'
-			//exclude '**/*.properties' 
+			exclude '**/*.properties' 
 		}
 	}	
 }
@@ -36,6 +36,7 @@ dependencies {
     
     compile("org.apache.commons:commons-lang3:3.4")
     compile("org.apache.commons:commons-pool2:2.4.2")
+    compile('commons-configuration:commons-configuration:1.10')
 
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.12'

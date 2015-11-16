@@ -45,17 +45,23 @@ public class TServiceClientPoolFactory extends BasePooledObjectFactory<TServiceC
 
 	@Override
 	public TServiceClient create() throws Exception {
-		TTransport transport = new TSocket(host, port);
-		transport.open();
+		TServiceClient client;
+		try {
+			TTransport transport = new TSocket(host, port);
+			transport.open();
 
-		TProtocol protocol = new TBinaryProtocol(transport);
-		TMultiplexedProtocol mProtocol = new TMultiplexedProtocol(protocol, serviceName);
+			TProtocol protocol = new TBinaryProtocol(transport);
+			TMultiplexedProtocol mProtocol = new TMultiplexedProtocol(protocol, serviceName);
 
-		TServiceClient client = clientFactory.getClient(mProtocol);
+			client = clientFactory.getClient(mProtocol);
 
-		LoggerHelper.debug(logger, ()->String.format("open new transport-{} on /%s:%s", counter.getAndIncrement(), host, port));
-
-		return client;
+			LoggerHelper.debug(logger, ()->String.format("open new transport-%d on /%s:%s success.", counter.getAndIncrement(), host, port));
+			
+			return client;
+		} catch (Exception e) {
+			LoggerHelper.error(logger, ()->String.format("open new transport-%d on /%s:%s throw exception.", counter.getAndIncrement(), host, port), e);
+			throw e;
+		}
 	}
 
 	@Override

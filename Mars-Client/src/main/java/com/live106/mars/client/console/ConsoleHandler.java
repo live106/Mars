@@ -5,6 +5,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -25,20 +26,45 @@ public class ConsoleHandler {
 	
 	private final static Logger logger = LoggerFactory.getLogger(ConsoleHandler.class);
 	
+	public volatile static boolean loopRequest = false;
+	
 	private static final String HELP_FOOTER = "footer";
 	private static final String HELP_HEADER = "header";
 	private static final String START = "start";
+	private static final String STOP = "stop";
+	private static final String SAVE = "save";
+	private static final String LOAD = "load";
 
 	private CommandLineParser commandParser = new DefaultParser();
 	private Map<String, Options> commandOption = new HashMap<>();
 	
 	public ConsoleHandler() {
-		Options options = new Options();
-		Option optionNumber = Option.builder("n").argName("number").hasArg().desc("the thread number to start").build();
-		options.addOption(optionNumber);
-		options.addOption("help", "show usage");
-		
-		commandOption.put(START, options);
+		//启动模拟线程
+		{
+			Options options = new Options();
+			Option optionNumber = Option.builder("n").argName("number").hasArg().desc("the thread number to start").build();
+			options.addOption(optionNumber);
+			Option optionLoop = Option.builder("l").argName("boolean").hasArg().desc("loop request or not when finishing.").build();
+			options.addOption(optionLoop);
+			options.addOption("help", "show usage");
+			
+			commandOption.put(START, options);
+		}
+		//停止模拟线程
+		{
+			Options options = new Options();
+			commandOption.put(STOP, options);
+		}
+		//保存存档
+		{
+			Options options = new Options();
+			commandOption.put(SAVE, options);
+		}
+		//获取存档
+		{
+			Options options = new Options();
+			commandOption.put(LOAD, options);
+		}
 	}
 
 	public void handleCommand(String command, PrintWriter writer) throws ParseException {
@@ -56,7 +82,22 @@ public class ConsoleHandler {
 			}
 			options = commandOption.get(cmd);
 			if (options != null) {
-				line = commandParser.parse(options, arguments);
+				try {
+					line = commandParser.parse(options, arguments);
+					if (line != null) {
+						if (!line.getArgList().isEmpty()) {
+							showHelp(writer, options);
+							return;
+						} else if (line.hasOption("help")) {
+							showHelp(writer, options);
+							return;
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					showHelp(writer, options);
+					return;
+				}
 			}
 		}
 		try {
@@ -65,22 +106,37 @@ public class ConsoleHandler {
 				{
 					int threadNum = 1;
 					if (line != null) {
-						if (line.hasOption("help")) {
-							HelpFormatter formatter = new HelpFormatter();
-							formatter.printHelp(writer, formatter.getWidth(), formatter.getSyntaxPrefix(), HELP_HEADER, options, formatter.getLeftPadding(), formatter.getDescPadding(), HELP_FOOTER);
-							break;
-						} else if (line.hasOption("n")) {
+						if (line.hasOption("n")) {
 							String count = line.getOptionValue("n");
 							try {
 								threadNum = Integer.parseInt(count);
 							} catch (NumberFormatException e) {
 								e.printStackTrace();
+								showHelp(writer, options);
+								return;
 							}
+						}
+						if (line.hasOption("l")) {
+							loopRequest = Boolean.parseBoolean(line.getOptionValue("l"));
 						}
 					}
 					start(threadNum);
 					break;
 				}
+			case STOP:
+			{
+				break;
+			}
+			case SAVE:
+			{
+				saveArchive();
+				break;
+			}
+			case LOAD:
+			{
+				loadArchive();
+				break;
+			}
 			default:
 				break;
 			}
@@ -90,16 +146,57 @@ public class ConsoleHandler {
 
 	}
 
+	private void loadArchive() {
+		synchronized (ClientRunner.runners) {
+			for (ClientRunner runner : ClientRunner.runners) {
+				try {
+					runner.loadArchive();
+				} catch (TException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private void saveArchive() {
+		synchronized (ClientRunner.runners) {
+			for (ClientRunner runner : ClientRunner.runners) {
+				try {
+					runner.saveArchive();
+				} catch (TException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private void showHelp(PrintWriter writer, Options options) {
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp(writer, formatter.getWidth(), formatter.getSyntaxPrefix(), HELP_HEADER, options, formatter.getLeftPadding(), formatter.getDescPadding(), HELP_FOOTER);
+	}
+
 	private void start(int threadNum) throws TException, InterruptedException, NoSuchAlgorithmException {
 		for (int i = 0; i < threadNum; i++) {
-			new Thread(starter).start();
+			new StarterThread().start();
+			Thread.sleep(10);//到获取场景信息这一步，模拟每秒100个客户端频率, 400次连接及断开，500次协议收发。
 		}
 	}
 	
-	Runnable starter = new Runnable() {
+	static class StarterThread extends Thread {
+		
+		private final static AtomicInteger runnerNumber = new AtomicInteger();
+		private final int number;
+		
+		public StarterThread() {
+			super();
+			number = runnerNumber.getAndIncrement();
+			setName("starter-" + number);
+		}
+		
 		@Override
 		public void run() {
 			ClientRunner runner = ClientGroupRunner.ctx.getBean(ClientRunner.class);
+			runner.setThreadNumber(number);
 			try {
 				runner.start();
 			} catch (NoSuchAlgorithmException | TException | InterruptedException | InvalidAlgorithmParameterException e) {
@@ -108,63 +205,4 @@ public class ConsoleHandler {
 		}
 	};
 
-//	private void start(int threadNum) throws TException, InterruptedException, NoSuchAlgorithmException {
-//		/*
-//		Channel ch = ClientRunner.channelFulture.channel();
-//		
-//		//check whether ch is valid
-//		
-//		ProtocolPeer2Peer tp = new ProtocolPeer2Peer();
-//		tp.getHeader().setTargetType(PeerType.PEER_TYPE_ACCOUNT);
-//		tp.getHeader().setSourceType(PeerType.PEER_TYPE_CLIENT);
-//		tp.getHeader().setSerializeType(SerializeType.SERIALIZE_TYPE_THRIFT);//thrift is default.
-//		
-//		RequestSendClientPublicKey request = new RequestSendClientPublicKey();
-//		
-//		cryptor = new Cryptor(Cryptor.AES);
-//		cryptor.generateKey();
-//		
-//		request.setClientPubKey(cryptor.getSecretKey());
-//		ProtocolSerializer.serialize(request, tp);
-//		*/
-//
-//		/*
-//		tp.getHeader().setProtocolHash(request.getClass().getSimpleName().hashCode());
-//		RequestAuthServerPublicKey request = new RequestAuthServerPublicKey();
-//		byte[] bytes = serializer.serialize(request);
-////		tp.getHeader().setTargetId(targetId);
-////		tp.getHeader().setSourceId(sourceId);
-//		
-////		tp.setTargetType(IProtocol.PEER_TYPE_ACCOUNT);
-////		tp.setSourceType(IProtocol.PEER_TYPE_CLIENT);
-////		tp.setTargetId(0x1010);
-////		tp.setSourceId(sourceId);
-////		tp.setSerializeType(IProtocol.SERIALIZE_TYPE_THRIFT);
-////		tp.setProtocolHash(request.getClass().getSimpleName().hashCode());
-//		
-//		tp.setData(bytes);
-//		
-////		RequestUserLogin login = new RequestUserLogin();
-////		login.setUsername("admin" + new Random().nextInt(100));
-//////		login.setPassword("111111");
-////		
-////		byte[] bytes = serializer.serialize(login);
-////		
-////		ClientProtocolPojo tp = new ClientProtocolPojo();
-////		
-////		
-////		
-////		tp.setProtocolHash(login.getClass().getSimpleName().hashCode());
-////		tp.setData(bytes);
-//		
-//		*/
-//		
-//		/*
-//		ChannelFuture writeFulture = ch.writeAndFlush(tp);
-//		
-//		if (writeFulture != null) {
-//			writeFulture.sync();
-//		}
-//		*/
-//	}
 }

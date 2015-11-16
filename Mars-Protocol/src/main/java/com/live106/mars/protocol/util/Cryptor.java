@@ -4,6 +4,7 @@
 package com.live106.mars.protocol.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -29,7 +30,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class Cryptor {
 	private static final IvParameterSpec IV_PARAMETER_SPEC = new IvParameterSpec(new byte[16]);
 	public final static String RSA = "RSA";
-	public final static String AES4CIPHER = "AES/CBC/PKCS5Padding";
+	public final static String AES4CIPHER = "AES/ECB/PKCS5Padding";
 	public final static String AES = "AES";
 	
 	private String algorithm = "RSA";
@@ -100,7 +101,8 @@ public class Cryptor {
 		case AES:
 		{
 			Cipher cipher = Cipher.getInstance(AES4CIPHER);
-			cipher.init(opmode, secretKey, IV_PARAMETER_SPEC);
+//			cipher.init(opmode, secretKey, IV_PARAMETER_SPEC);
+			cipher.init(opmode, secretKey);
 			return cipher.doFinal(data);
 		}
 		}
@@ -138,10 +140,13 @@ public class Cryptor {
 	}
 
 	public String getSecretKey() {
-		return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+		String stringKey = new String(secretKey.getEncoded(), StandardCharsets.UTF_8);
+		return new String(Base64.getEncoder().encode(stringKey.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+//		return new String(secretKey.getEncoded(), StandardCharsets.UTF_8);
 	}
 	
 	public void setSecretKey(String key) {
-		this.secretKey = new SecretKeySpec(Base64.getDecoder().decode(key), algorithm);
+		this.secretKey = new SecretKeySpec(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8)), algorithm);
+//		this.secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), algorithm);
 	}
 }

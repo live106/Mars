@@ -3,7 +3,8 @@
 ::cd %work_path% 
 set thriftPath=.\src\main\thrift
 set javaOut=.\src\main\java
-set csharpOut=..\..\..\Client\Assets\Scripts
+::set csharpOut=..\..\..\Client\Assets\Scripts
+set csharpOut=E:\项目三部\Client\Assets\Scripts\
 for /R %thriftPath%\server %%s in (*) do ( 
 thrift -gen java:beans -out %javaOut% %%s
 echo %%s 

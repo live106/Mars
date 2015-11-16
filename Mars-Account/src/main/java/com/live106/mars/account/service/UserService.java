@@ -11,6 +11,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -26,6 +27,8 @@ import com.live106.mars.account.bean.UserPassport;
 import com.live106.mars.account.db.mapper.UserMapper;
 import com.live106.mars.account.db.model.User;
 import com.live106.mars.account.db.model.UserExample;
+import com.live106.mars.account.redis.IRedisConstants;
+import com.live106.mars.account.redis.UserRedis;
 import com.live106.mars.protocol.util.Cryptor;
 import com.live106.mars.protocol.util.ProtocolCrypto;
 
@@ -35,10 +38,12 @@ import com.live106.mars.protocol.util.ProtocolCrypto;
  */
 
 @Service
-public class UserService {
+public class UserService implements IRedisConstants {
 	
 	@Autowired
 	private UserMapper userDao;
+	@Autowired
+	private UserRedis userRedis;
 	
 	/* DH + AES start */ 
 	private Map<String, Object> dhServerKeyMap;
@@ -163,9 +168,14 @@ public class UserService {
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 * @throws InvalidAlgorithmParameterException
+	 * @throws TimeoutException 
 	 */
-	public String aesDecrypt(String channelId, String data) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+	public String aesDecrypt(String channelId, String data) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, TimeoutException {
 		String key = aesKeyMap.get(channelId);
+		
+		if (key == null) {
+			throw new TimeoutException("key is not found, maybe out-of-date.");
+		}
 		
 		Cryptor cryptor = new Cryptor(Cryptor.AES);
 		cryptor.setSecretKey(key);
@@ -198,6 +208,21 @@ public class UserService {
 		return passport;
 	}
 	
+	public UserPassport generatePassport(int userid, String username, String createtime) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+		StringBuilder sb = new StringBuilder();
+		sb.append(userid);
+		sb.append(username);
+		sb.append(createtime);
+		
+		String identity = DigestUtils.md5Hex(sb.toString());
+		
+		UserPassport passport = new UserPassport();
+		passport.setIdentify(identity);
+		passport.setSecureKey(generateGameServerSecureKey(userid));
+		
+		return passport;
+	}
+	
 	/**
 	 * generate AES secure key for game server
 	 * @param user
@@ -211,5 +236,44 @@ public class UserService {
 		String secureKey = cryptor.getSecretKey();
 		secureKeyMap.put(user.getId(), secureKey);
 		return secureKey;
+	}
+	
+	private String generateGameServerSecureKey(int userid) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+		Cryptor cryptor = new Cryptor(Cryptor.AES);
+		cryptor.generateKey();
+		String secureKey = cryptor.getSecretKey();
+		secureKeyMap.put(userid, secureKey);
+		return secureKey;
+	}
+
+	public boolean isValidMachineId(String machineId) {
+		return (machineId != null) && (machineId.length() >= 32) || true;
+	}
+
+//	public User loginByMachineId(String machineId) {
+//		User user = userDao.selectByMachineId(machineId);
+//		if (user == null) {
+//			user = new User();
+//			user.setMachineid(machineId);
+//			user.setUsername("");
+//			user.setPassword("");
+//			userDao.insertSelective(user);
+//			return userDao.selectByMachineId(machineId);//FIXME why should I query again? Can MyBatis update the properties of the record which was just inserted ?
+//		} else {
+//			return user;
+//		}
+//	}
+	public Map<String, String> loginByMachineId(String machineId) {
+		Map<String, String> usermap = null;
+		long userId = userRedis.getUserIdByMachineId(machineId);
+		if (userId > 0) {
+			usermap = userRedis.getUser(String.format("%s:%d", field_user_prefix, userId));
+		} else {
+			usermap = userRedis.addUser(machineId);
+			userId = userRedis.getUserIdByMachineId(machineId);
+		}
+		usermap.put(additional_field_userid, String.valueOf(userId));
+		
+		return usermap;
 	}
 }

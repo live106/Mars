@@ -1,18 +1,341 @@
-13:37:58.627 [main] INFO  c.l.mars.client.ClientGroupRunner - Starting ClientGroupRunner on dell-PC with PID 8924 (E:\workspace\Server\Projects\Mars-Client\bin started by dell in E:\workspace\Server\Projects\Mars-Client) 
-13:37:58.651 [main] INFO  o.s.c.a.AnnotationConfigApplicationContext - Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@6e2c9341: startup date [Tue Oct 27 13:37:58 CST 2015]; root of context hierarchy 
-13:37:58.867 [main] INFO  c.l.mars.client.ClientGroupRunner - Started ClientGroupRunner in 0.39 seconds (JVM running for 0.783) 
-13:37:58.875 [ConsoleListener-Thread] INFO  c.l.mars.client.console.Console - Open Mars Client Console at port 8888 
-13:41:12.333 [main] INFO  c.l.mars.client.ClientGroupRunner - Starting ClientGroupRunner on dell-PC with PID 8448 (E:\workspace\Server\Projects\Mars-Client\bin started by dell in E:\workspace\Server\Projects\Mars-Client) 
-13:41:12.356 [main] INFO  o.s.c.a.AnnotationConfigApplicationContext - Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@77a57272: startup date [Tue Oct 27 13:41:12 CST 2015]; root of context hierarchy 
-13:41:12.574 [main] INFO  c.l.mars.client.ClientGroupRunner - Started ClientGroupRunner in 0.39 seconds (JVM running for 0.768) 
-13:41:12.575 [main] INFO  c.l.mars.client.ClientGroupRunner - ClientGroup server started at Tue Oct 27 13:41:12 CST 2015. 
-13:41:12.584 [ConsoleListener-Thread] INFO  c.l.mars.client.console.Console - Open Mars Client Console at port 8888 
-13:43:41.759 [main] INFO  c.l.mars.client.ClientGroupRunner - Starting ClientGroupRunner on dell-PC with PID 8584 (E:\workspace\Server\Projects\Mars-Client\bin started by dell in E:\workspace\Server\Projects\Mars-Client) 
-13:43:41.784 [main] INFO  o.s.c.a.AnnotationConfigApplicationContext - Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@77a57272: startup date [Tue Oct 27 13:43:41 CST 2015]; root of context hierarchy 
-13:43:42.001 [main] INFO  c.l.mars.client.ClientGroupRunner - Started ClientGroupRunner in 0.389 seconds (JVM running for 0.766) 
-13:43:42.002 [main] INFO  c.l.mars.client.ClientGroupRunner - ClientGroup server started at Tue Oct 27 13:43:42 CST 2015. 
-13:43:42.010 [ConsoleListener-Thread] INFO  c.l.mars.client.console.Console - Open Mars Client Console at port 8888 
-13:45:21.769 [Thread-4] INFO  c.l.m.c.processor.ClientProcessor - login ERROR, 用户名或密码错误！ 
-13:45:21.769 [Thread-5] INFO  c.l.m.c.processor.ClientProcessor - login ERROR, 用户名或密码错误！ 
-13:57:16.011 [Thread-10] INFO  c.l.m.c.processor.ClientProcessor - login ERROR, 用户名或密码错误！ 
-13:57:16.016 [Thread-12] INFO  c.l.m.c.processor.ClientProcessor - login ERROR, 用户名或密码错误！ 
+19:34:02.797 [console-2-1] DEBUG c.l.m.client.console.ConsoleHandler - input command start -n 20 
+19:34:02.805 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.807 [starter-44] DEBUG c.live106.mars.client.ClientRunner - starter-44 start. 
+19:34:02.817 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.818 [44-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 82450dd5-11d2-44da-b36c-7963ba296ea9-->7936-->a8570a701d7dfce5129cc0d49f033355 login OK, 登陆成功！ 
+19:34:02.819 [starter-45] DEBUG c.live106.mars.client.ClientRunner - starter-45 start. 
+19:34:02.821 [44-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7936}登录游戏服务器：true 
+19:34:02.826 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7936} 断开网关服务器 
+19:34:02.828 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.830 [44-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{44-1-netty-client}玩家{7936} 连接网关服务器 
+19:34:02.832 [starter-46] DEBUG c.live106.mars.client.ClientRunner - starter-46 start. 
+19:34:02.835 [44-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7936}存储场景信息：true 
+19:34:02.839 [45-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 08f9df5a-babb-4ef9-a7e2-df797c007fba-->7937-->e0d7b03eef58668a8a144198e68ef8cf login OK, 登陆成功！ 
+19:34:02.847 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.848 [45-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7937}登录游戏服务器：true 
+19:34:02.850 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7937} 断开网关服务器 
+19:34:02.853 [45-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{45-1-netty-client}玩家{7937} 连接网关服务器 
+19:34:02.855 [44-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{44-2-netty-client}玩家{7936} 连接网关服务器 
+19:34:02.858 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.860 [starter-47] DEBUG c.live106.mars.client.ClientRunner - starter-47 start. 
+19:34:02.860 [starter-48] DEBUG c.live106.mars.client.ClientRunner - starter-48 start. 
+19:34:02.861 [44-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7936}读取场景信息
+2
+---------------------
+1:100:1447673642821
+2:200:1447673642821
+3:300:1447673642821
+--------------------- 
+19:34:02.861 [44-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{44-1-netty-client}玩家{7936} 断开网关服务器 
+19:34:02.862 [44-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{44-2-netty-client}玩家{7936} 断开网关服务器 
+19:34:02.863 [45-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7937}存储场景信息：true 
+19:34:02.865 [45-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{45-1-netty-client}玩家{7937} 断开网关服务器 
+19:34:02.869 [45-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{45-2-netty-client}玩家{7937} 连接网关服务器 
+19:34:02.871 [46-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - ff410a14-87a0-4cd8-b17e-5680e4b8185c-->7938-->34a2b7848c197853f85958f4297f0c1e login OK, 登陆成功！ 
+19:34:02.872 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.874 [starter-49] DEBUG c.live106.mars.client.ClientRunner - starter-49 start. 
+19:34:02.874 [48-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 3696b2b9-ec65-4db4-a21c-f15623bcf260-->7939-->3d45cd7970b629e8e83b6b7b62f784dd login OK, 登陆成功！ 
+19:34:02.874 [46-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7938}登录游戏服务器：true 
+19:34:02.875 [45-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7937}读取场景信息
+2
+---------------------
+1:100:1447673642848
+2:200:1447673642848
+3:300:1447673642848
+--------------------- 
+19:34:02.882 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.883 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.884 [47-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 0a5f7d65-3b6b-4e6a-aff6-582453d9f8e1-->7940-->c7d75e829ff0c5d4581c47be4fd43912 login OK, 登陆成功！ 
+19:34:02.888 [48-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7939}登录游戏服务器：true 
+19:34:02.889 [49-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - fed91374-3f94-4f90-8f76-247855c557cc-->7941-->55a6b161b6ee3d7636e94a4d716b2079 login OK, 登陆成功！ 
+19:34:02.890 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7938} 断开网关服务器 
+19:34:02.891 [46-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{46-1-netty-client}玩家{7938} 连接网关服务器 
+19:34:02.894 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7939} 断开网关服务器 
+19:34:02.895 [49-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7941}登录游戏服务器：true 
+19:34:02.895 [45-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{45-2-netty-client}玩家{7937} 断开网关服务器 
+19:34:02.896 [starter-51] DEBUG c.live106.mars.client.ClientRunner - starter-51 start. 
+19:34:02.897 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7941} 断开网关服务器 
+19:34:02.899 [starter-50] DEBUG c.live106.mars.client.ClientRunner - starter-50 start. 
+19:34:02.899 [47-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7940}登录游戏服务器：true 
+19:34:02.907 [49-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{49-1-netty-client}玩家{7941} 连接网关服务器 
+19:34:02.913 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.913 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7940} 断开网关服务器 
+19:34:02.914 [46-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7938}存储场景信息：true 
+19:34:02.915 [48-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{48-1-netty-client}玩家{7939} 连接网关服务器 
+19:34:02.916 [51-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 16d1249c-e254-462a-83e6-777f82fc4825-->7942-->1b516c021d428ad09b1ae8ba66c8cbc8 login OK, 登陆成功！ 
+19:34:02.917 [50-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - e36bc6ef-abdf-4565-8f9f-7ebf221011d4-->7943-->800adc3aa7388614fbb4ae5558b78976 login OK, 登陆成功！ 
+19:34:02.921 [51-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7942}登录游戏服务器：true 
+19:34:02.922 [50-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7943}登录游戏服务器：true 
+19:34:02.922 [46-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{46-1-netty-client}玩家{7938} 断开网关服务器 
+19:34:02.924 [49-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7941}存储场景信息：true 
+19:34:02.926 [48-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7939}存储场景信息：true 
+19:34:02.926 [48-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{48-1-netty-client}玩家{7939} 断开网关服务器 
+19:34:02.927 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.930 [46-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{46-2-netty-client}玩家{7938} 连接网关服务器 
+19:34:02.930 [starter-53] DEBUG c.live106.mars.client.ClientRunner - starter-53 start. 
+19:34:02.932 [49-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{49-1-netty-client}玩家{7941} 断开网关服务器 
+19:34:02.932 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7942} 断开网关服务器 
+19:34:02.932 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7943} 断开网关服务器 
+19:34:02.935 [starter-52] DEBUG c.live106.mars.client.ClientRunner - starter-52 start. 
+19:34:02.938 [46-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7938}读取场景信息
+2
+---------------------
+1:100:1447673642886
+2:200:1447673642886
+3:300:1447673642886
+--------------------- 
+19:34:02.938 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.941 [50-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{50-1-netty-client}玩家{7943} 连接网关服务器 
+19:34:02.946 [51-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{51-1-netty-client}玩家{7942} 连接网关服务器 
+19:34:02.946 [53-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - afc21475-6efb-435f-9e2d-4424c6fab44a-->7944-->c2c05627fabd3d3a302c64c6ad52f6f0 login OK, 登陆成功！ 
+19:34:02.949 [49-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{49-2-netty-client}玩家{7941} 连接网关服务器 
+19:34:02.949 [52-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 583359a8-8285-4c0f-88d3-1323d5dfda63-->7945-->fdaf8b9cc6c004cc9926b9770810332c login OK, 登陆成功！ 
+19:34:02.950 [48-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{48-2-netty-client}玩家{7939} 连接网关服务器 
+19:34:02.953 [50-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7943}存储场景信息：true 
+19:34:02.953 [52-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7945}登录游戏服务器：true 
+19:34:02.956 [53-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7944}登录游戏服务器：true 
+19:34:02.956 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7945} 断开网关服务器 
+19:34:02.959 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.963 [46-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{46-2-netty-client}玩家{7938} 断开网关服务器 
+19:34:02.963 [48-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7939}读取场景信息
+2
+---------------------
+1:100:1447673642891
+2:200:1447673642891
+3:300:1447673642891
+--------------------- 
+19:34:02.965 [53-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{53-1-netty-client}玩家{7944} 连接网关服务器 
+19:34:02.965 [49-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7941}读取场景信息
+2
+---------------------
+1:100:1447673642895
+2:200:1447673642895
+3:300:1447673642895
+--------------------- 
+19:34:02.965 [50-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{50-2-netty-client}玩家{7943} 连接网关服务器 
+19:34:02.966 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7944} 断开网关服务器 
+19:34:02.969 [50-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{50-1-netty-client}玩家{7943} 断开网关服务器 
+19:34:02.970 [48-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{48-2-netty-client}玩家{7939} 断开网关服务器 
+19:34:02.975 [starter-55] DEBUG c.live106.mars.client.ClientRunner - starter-55 start. 
+19:34:02.976 [53-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7944}存储场景信息：true 
+19:34:02.976 [51-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7942}存储场景信息：true 
+19:34:02.977 [starter-54] DEBUG c.live106.mars.client.ClientRunner - starter-54 start. 
+19:34:02.977 [52-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{52-1-netty-client}玩家{7945} 连接网关服务器 
+19:34:02.977 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.982 [47-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{47-1-netty-client}玩家{7940} 连接网关服务器 
+19:34:02.983 [49-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{49-2-netty-client}玩家{7941} 断开网关服务器 
+19:34:02.987 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.991 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:02.992 [54-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - f03798ab-3428-4500-81ad-68ccae5b8d34-->7946-->793c4f53aee6014e0fbae0e1409b8392 login OK, 登陆成功！ 
+19:34:02.992 [50-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7943}读取场景信息
+2
+---------------------
+1:100:1447673642922
+2:200:1447673642922
+3:300:1447673642922
+--------------------- 
+19:34:02.993 [55-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 8fa72005-6bbd-47e1-9930-0ede267afe1a-->7947-->dfef23851103c8d69bd6f6d5b86673b8 login OK, 登陆成功！ 
+19:34:02.997 [53-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{53-2-netty-client}玩家{7944} 连接网关服务器 
+19:34:02.998 [53-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{53-1-netty-client}玩家{7944} 断开网关服务器 
+19:34:03.015 [51-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{51-2-netty-client}玩家{7942} 连接网关服务器 
+19:34:03.017 [51-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{51-1-netty-client}玩家{7942} 断开网关服务器 
+19:34:03.018 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:03.020 [52-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7945}存储场景信息：true 
+19:34:03.021 [starter-56] DEBUG c.live106.mars.client.ClientRunner - starter-56 start. 
+19:34:03.027 [starter-58] DEBUG c.live106.mars.client.ClientRunner - starter-58 start. 
+19:34:03.031 [56-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 6a5d1edd-e9eb-4b30-bc3a-f7531d4b6852-->7948-->790d454f8d095716197ba4f4f984e25e login OK, 登陆成功！ 
+19:34:03.033 [47-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7940}存储场景信息：true 
+19:34:03.037 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:03.037 [starter-57] DEBUG c.live106.mars.client.ClientRunner - starter-57 start. 
+19:34:03.038 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:03.040 [50-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{50-2-netty-client}玩家{7943} 断开网关服务器 
+19:34:03.045 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:03.050 [54-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7946}登录游戏服务器：true 
+19:34:03.061 [53-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7944}读取场景信息
+2
+---------------------
+1:100:1447673642959
+2:200:1447673642959
+3:300:1447673642959
+--------------------- 
+19:34:03.062 [starter-59] DEBUG c.live106.mars.client.ClientRunner - starter-59 start. 
+19:34:03.062 [55-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7947}登录游戏服务器：true 
+19:34:03.063 [58-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 1071ea9a-474c-4d06-9300-257b670e6c2a-->7949-->3c19d0e2a113c1462ccfcedb9834a158 login OK, 登陆成功！ 
+19:34:03.064 [52-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{52-1-netty-client}玩家{7945} 断开网关服务器 
+19:34:03.067 [starter-61] DEBUG c.live106.mars.client.ClientRunner - starter-61 start. 
+19:34:03.068 [51-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7942}读取场景信息
+2
+---------------------
+1:100:1447673642921
+2:200:1447673642921
+3:300:1447673642921
+--------------------- 
+19:34:03.068 [56-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7948}登录游戏服务器：true 
+19:34:03.068 [starter-60] DEBUG c.live106.mars.client.ClientRunner - starter-60 start. 
+19:34:03.069 [57-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 3a3487c1-6fcf-44bc-bfee-0f2be1c46edc-->7950-->1d79be83e7ec7a48c5f110d5f8f86b9a login OK, 登陆成功！ 
+19:34:03.069 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{0} 连接网关服务器 
+19:34:03.074 [47-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{47-1-netty-client}玩家{7940} 断开网关服务器 
+19:34:03.078 [61-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 94ea15aa-72ff-4e5f-a565-9122aab0b3a6-->7952-->a243a3604a00fb92af20ece0b2010698 login OK, 登陆成功！ 
+19:34:03.080 [59-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 6624e06d-1fc6-449c-80d4-f2abe2b26825-->7951-->4d86283960109260c6be5eab370b6754 login OK, 登陆成功！ 
+19:34:03.082 [52-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{52-2-netty-client}玩家{7945} 连接网关服务器 
+19:34:03.085 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7946} 断开网关服务器 
+19:34:03.086 [60-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 855b20f6-ef1d-4356-bd07-8c6e76d5515f-->7953-->5e760046229ae95c6fd2b522fbb1eb5b login OK, 登陆成功！ 
+19:34:03.091 [47-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{47-2-netty-client}玩家{7940} 连接网关服务器 
+19:34:03.207 [53-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{53-2-netty-client}玩家{7944} 断开网关服务器 
+19:34:03.208 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7947} 断开网关服务器 
+19:34:03.209 [starter-62] DEBUG c.live106.mars.client.ClientRunner - starter-62 start. 
+19:34:03.216 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7948} 断开网关服务器 
+19:34:03.218 [51-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{51-2-netty-client}玩家{7942} 断开网关服务器 
+19:34:03.221 [55-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{55-1-netty-client}玩家{7947} 连接网关服务器 
+19:34:03.221 [58-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7949}登录游戏服务器：true 
+19:34:03.224 [56-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{56-1-netty-client}玩家{7948} 连接网关服务器 
+19:34:03.225 [starter-63] DEBUG c.live106.mars.client.ClientRunner - starter-63 start. 
+19:34:03.228 [54-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{54-1-netty-client}玩家{7946} 连接网关服务器 
+19:34:03.230 [62-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - 4cbe8072-4a1e-4629-9c4d-0168f09c3606-->7954-->6a71c7781bf9677736a45083cf26b648 login OK, 登陆成功！ 
+19:34:03.233 [59-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7951}登录游戏服务器：true 
+19:34:03.233 [57-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7950}登录游戏服务器：true 
+19:34:03.234 [61-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7952}登录游戏服务器：true 
+19:34:03.236 [52-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7945}读取场景信息
+2
+---------------------
+1:100:1447673642953
+2:200:1447673642953
+3:300:1447673642953
+--------------------- 
+19:34:03.240 [47-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7940}读取场景信息
+2
+---------------------
+1:100:1447673642908
+2:200:1447673642908
+3:300:1447673642908
+--------------------- 
+19:34:03.240 [60-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7953}登录游戏服务器：true 
+19:34:03.243 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7949} 断开网关服务器 
+19:34:03.244 [63-1-receiver] INFO  c.l.m.c.processor.ClientProcessor - d271cbe4-78a9-4d1b-918d-7a8ce349b1de-->7955-->0604cc00ffa06ebfbb18aa79ee362d4a login OK, 登陆成功！ 
+19:34:03.250 [55-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7947}存储场景信息：true 
+19:34:03.255 [58-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{58-1-netty-client}玩家{7949} 连接网关服务器 
+19:34:03.256 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7951} 断开网关服务器 
+19:34:03.259 [62-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7954}登录游戏服务器：true 
+19:34:03.259 [56-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7948}存储场景信息：true 
+19:34:03.260 [59-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{59-1-netty-client}玩家{7951} 连接网关服务器 
+19:34:03.260 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7950} 断开网关服务器 
+19:34:03.268 [52-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{52-2-netty-client}玩家{7945} 断开网关服务器 
+19:34:03.269 [57-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{57-1-netty-client}玩家{7950} 连接网关服务器 
+19:34:03.272 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7953} 断开网关服务器 
+19:34:03.275 [60-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{60-1-netty-client}玩家{7953} 连接网关服务器 
+19:34:03.285 [54-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7946}存储场景信息：true 
+19:34:03.287 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7952} 断开网关服务器 
+19:34:03.289 [47-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{47-2-netty-client}玩家{7940} 断开网关服务器 
+19:34:03.301 [55-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{55-1-netty-client}玩家{7947} 断开网关服务器 
+19:34:03.304 [61-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{61-1-netty-client}玩家{7952} 连接网关服务器 
+19:34:03.307 [63-1-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7955}登录游戏服务器：true 
+19:34:03.310 [55-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{55-2-netty-client}玩家{7947} 连接网关服务器 
+19:34:03.317 [62-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{62-1-netty-client}玩家{7954} 连接网关服务器 
+19:34:03.325 [56-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{56-1-netty-client}玩家{7948} 断开网关服务器 
+19:34:03.325 [56-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{56-2-netty-client}玩家{7948} 连接网关服务器 
+19:34:03.327 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7954} 断开网关服务器 
+19:34:03.342 [60-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7953}存储场景信息：true 
+19:34:03.344 [58-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7949}存储场景信息：true 
+19:34:03.349 [57-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7950}存储场景信息：true 
+19:34:03.349 [54-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{54-1-netty-client}玩家{7946} 断开网关服务器 
+19:34:03.352 [59-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7951}存储场景信息：true 
+19:34:03.361 [54-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{54-2-netty-client}玩家{7946} 连接网关服务器 
+19:34:03.362 [0-0-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{0-0-netty-client}玩家{7955} 断开网关服务器 
+19:34:03.363 [63-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{63-1-netty-client}玩家{7955} 连接网关服务器 
+19:34:03.367 [58-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{58-1-netty-client}玩家{7949} 断开网关服务器 
+19:34:03.369 [60-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{60-1-netty-client}玩家{7953} 断开网关服务器 
+19:34:03.370 [59-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{59-1-netty-client}玩家{7951} 断开网关服务器 
+19:34:03.374 [58-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{58-2-netty-client}玩家{7949} 连接网关服务器 
+19:34:03.378 [60-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{60-2-netty-client}玩家{7953} 连接网关服务器 
+19:34:03.381 [57-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{57-1-netty-client}玩家{7950} 断开网关服务器 
+19:34:03.382 [63-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7955}存储场景信息：true 
+19:34:03.384 [63-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{63-1-netty-client}玩家{7955} 断开网关服务器 
+19:34:03.388 [58-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7949}读取场景信息
+2
+---------------------
+1:100:1447673643242
+2:200:1447673643242
+3:300:1447673643242
+--------------------- 
+19:34:03.390 [58-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{58-2-netty-client}玩家{7949} 断开网关服务器 
+19:34:03.390 [63-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{63-2-netty-client}玩家{7955} 连接网关服务器 
+19:34:03.394 [63-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7955}读取场景信息
+2
+---------------------
+1:100:1447673643356
+2:200:1447673643356
+3:300:1447673643356
+--------------------- 
+19:34:03.395 [63-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{63-2-netty-client}玩家{7955} 断开网关服务器 
+19:34:03.396 [60-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7953}读取场景信息
+2
+---------------------
+1:100:1447673643263
+2:200:1447673643263
+3:300:1447673643263
+--------------------- 
+19:34:03.398 [56-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7948}读取场景信息
+2
+---------------------
+1:100:1447673643209
+2:200:1447673643209
+3:300:1447673643209
+--------------------- 
+19:34:03.398 [59-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{59-2-netty-client}玩家{7951} 连接网关服务器 
+19:34:03.401 [61-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7952}存储场景信息：true 
+19:34:03.412 [62-2-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7954}存储场景信息：true 
+19:34:03.413 [60-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{60-2-netty-client}玩家{7953} 断开网关服务器 
+19:34:03.414 [62-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{62-1-netty-client}玩家{7954} 断开网关服务器 
+19:34:03.415 [61-1-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{61-1-netty-client}玩家{7952} 断开网关服务器 
+19:34:03.415 [56-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{56-2-netty-client}玩家{7948} 断开网关服务器 
+19:34:03.424 [61-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{61-2-netty-client}玩家{7952} 连接网关服务器 
+19:34:03.433 [62-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{62-2-netty-client}玩家{7954} 连接网关服务器 
+19:34:03.436 [62-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7954}读取场景信息
+2
+---------------------
+1:100:1447673643311
+2:200:1447673643311
+3:300:1447673643311
+--------------------- 
+19:34:03.438 [62-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{62-2-netty-client}玩家{7954} 断开网关服务器 
+19:34:03.440 [55-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7947}读取场景信息
+2
+---------------------
+1:100:1447673643207
+2:200:1447673643207
+3:300:1447673643207
+--------------------- 
+19:34:03.443 [55-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{55-2-netty-client}玩家{7947} 断开网关服务器 
+19:34:03.447 [54-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7946}读取场景信息
+2
+---------------------
+1:100:1447673643083
+2:200:1447673643083
+3:300:1447673643083
+--------------------- 
+19:34:03.448 [54-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{54-2-netty-client}玩家{7946} 断开网关服务器 
+19:34:03.450 [59-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7951}读取场景信息
+2
+---------------------
+1:100:1447673643250
+2:200:1447673643250
+3:300:1447673643250
+--------------------- 
+19:34:03.450 [57-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{57-2-netty-client}玩家{7950} 连接网关服务器 
+19:34:03.460 [57-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7950}读取场景信息
+2
+---------------------
+1:100:1447673643250
+2:200:1447673643250
+3:300:1447673643250
+--------------------- 
+19:34:03.462 [61-3-receiver] DEBUG c.l.m.c.processor.ClientProcessor - 玩家{7952}读取场景信息
+2
+---------------------
+1:100:1447673643261
+2:200:1447673643261
+3:300:1447673643261
+--------------------- 
+19:34:03.462 [59-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{59-2-netty-client}玩家{7951} 断开网关服务器 
+19:34:03.468 [61-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{61-2-netty-client}玩家{7952} 断开网关服务器 
+19:34:03.472 [57-2-netty-client] DEBUG c.live106.mars.client.ClientRunner - 客户端{57-2-netty-client}玩家{7950} 断开网关服务器 

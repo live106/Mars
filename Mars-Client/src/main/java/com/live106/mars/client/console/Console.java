@@ -14,11 +14,13 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.live106.mars.concurrent.MarsDefaultThreadFactory;
+
 public class Console {
 	private static String PROMPT = "Mars-Client> ";
 
 	private static Logger log = LoggerFactory.getLogger(Console.class);
-	private static ExecutorService executor = Executors.newCachedThreadPool();
+	private static ExecutorService executor = Executors.newCachedThreadPool(new MarsDefaultThreadFactory("console"));
 	private Socket l = null;
 	private ConsoleHandler handler;
 
@@ -30,12 +32,8 @@ public class Console {
 				console.listen(8888, new ConsoleHandler());
 			}
 		};
-		new Thread(runnable, "ConsoleListener-Thread").start();
+		new Thread(runnable, "ConsoleListener").start();
 	}
-
-//	public static void setCmdPackage(String pkg) {
-//		Command.setCmdPackage(pkg);
-//	}
 
 	public void listen(int port, ConsoleHandler handler) {
 		ServerSocket socket = null;

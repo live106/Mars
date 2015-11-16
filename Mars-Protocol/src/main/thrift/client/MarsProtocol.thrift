@@ -21,11 +21,13 @@ struct ProtocolHeader
 	1: PeerType targetType = PeerType.PEER_TYPE_DEFAULT,//消息目标类型，对于客户端来说是不同的服务器，账号、游戏等
 	2: PeerType sourceType = PeerType.PEER_TYPE_CLIENT,//消息发送者类型，客户端为PEER_TYPE_CLIENT
 	3: i32 targetId,//消息目标身份id，保留字段
-	4: i32 sourceId,//消息发送者身份id，保留字段
+	4: i32 sourceId = -1,//消息发送者身份id，对于客户端为uid
 	5: i64 channelId,//消息客户端channelId，服务器来维护该字段，客户端可忽略
 	6: SerializeType serializeType = SerializeType.SERIALIZE_TYPE_THRIFT,//标识消息的序列化类型， 默认应该使用SERIALIZE_TYPE_THRIFT
-	7: required i32 protocolHash,//消息类名称的hashcode
-	8: byte flag//系统保留字段，方便扩展
+	7: i32 protocolHash,//消息类名称的hashcode
+	8: byte flag,//系统保留字段，方便扩展
+	9: bool closeSocket = false//是否需要关闭socket
+	10: string passport//通行证
 }
 
 /**

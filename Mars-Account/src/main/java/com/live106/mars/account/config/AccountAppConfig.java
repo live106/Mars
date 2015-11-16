@@ -3,6 +3,8 @@
  */
 package com.live106.mars.account.config;
 
+import java.util.concurrent.Executors;
+
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
@@ -26,6 +28,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.live106.mars.account.rpc.UserServiceRpc;
 import com.live106.mars.common.thrift.TServiceClientBeanProxyFactory;
+import com.live106.mars.concurrent.MarsDefaultThreadFactory;
 import com.live106.mars.protocol.config.GlobalConfig;
 import com.live106.mars.protocol.thrift.IUserService;
 import com.live106.mars.protocol.thrift.game.IGamePlayerService;
@@ -52,7 +55,7 @@ public class AccountAppConfig {
 
 	@PostConstruct
 	public void init() {
-		new Thread(thriftServer).start();
+		new Thread(thriftServer, "thrfit-server-account").start();
 	}
 	
 	Runnable thriftServer = new Runnable() {
@@ -63,7 +66,11 @@ public class AccountAppConfig {
 				processor.registerProcessor(IUserService.class.getSimpleName(), new IUserService.Processor<IUserService.Iface>(userServiceRpc));
 //				processor.registerProcessor(IUserService.class.getSimpleName(), new IUserService.Processor<IUserService.Iface>(new UserServiceRpc()));
 				
-				TServer server = new TThreadPoolServer(new Args(transport).processor(processor));
+				TServer server = new TThreadPoolServer(new Args(transport)
+						.processor(processor)
+						.maxWorkerThreads(10)
+						.executorService(Executors.newCachedThreadPool(new MarsDefaultThreadFactory("thrift-pool-account")))
+						);
 					
 				server.serve();
 			} catch (TTransportException e) {
@@ -92,7 +99,7 @@ public class AccountAppConfig {
 	@Bean
 	public TServiceClientBeanProxyFactory gamePlayerService() {
 		try {
-			return new TServiceClientBeanProxyFactory(GlobalConfig.gameRpcHost, GlobalConfig.gameRpcPort, IGamePlayerService.class);
+			return new TServiceClientBeanProxyFactory(GlobalConfig.gameHost, GlobalConfig.gameRpcPort, IGamePlayerService.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

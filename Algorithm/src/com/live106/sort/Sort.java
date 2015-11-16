@@ -6,6 +6,7 @@ package com.live106.sort;
 import java.util.Arrays;
 
 /**
+ * 排序
  * @author live106 @creation Oct 22, 2015
  *
  */
@@ -70,10 +71,10 @@ public class Sort {
 		left = mergeSort(left);
 		right = mergeSort(right);
 		
-		return mergeTowArray(left, right);
+		return mergeTwoArray(left, right);
 	}
 
-	private static int[] mergeTowArray(int[] left, int[] right) {
+	private static int[] mergeTwoArray(int[] left, int[] right) {
 		int[] result = new int[left.length + right.length];
 		int i = 0, l = 0, r = 0;
 		while (i < result.length) {
