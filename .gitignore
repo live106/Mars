@@ -2,6 +2,7 @@
 .recommenders
 .gradle
 .settings
+*.log
 bin
 build
 tag_ServerNettyCall
