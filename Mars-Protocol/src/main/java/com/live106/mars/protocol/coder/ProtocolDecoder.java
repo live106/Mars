@@ -10,17 +10,21 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+/**
+ * Netty–≠“ÈΩ‚¬Î
+ * @author live106 @creation Nov 24, 2015
+ *
+ */
 public class ProtocolDecoder extends ByteToMessageDecoder {
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		if (in.readableBytes() == 0) {
-			//FIXME 
 			return;
 		}
 		int headerLen = in.readInt();
 		if (headerLen == 0) {
-			in.skipBytes(in.readableBytes());//FIXME skip all ?
+			in.skipBytes(in.readableBytes());//XXX skip all ?
 			return;
 		}
 		byte[] header = new byte[headerLen];

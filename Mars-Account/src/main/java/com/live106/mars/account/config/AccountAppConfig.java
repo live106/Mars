@@ -34,18 +34,15 @@ import com.live106.mars.protocol.thrift.IUserService;
 import com.live106.mars.protocol.thrift.game.IGamePlayerService;
 
 /**
+ * 账号服务器Spring启动配置
  * @author live106 @creation Oct 8, 2015
- *
  */
 @Configuration
 @MapperScan({ "com.live106.mars.account.db.mapper" })
 @ComponentScan(basePackages = { "com.live106.mars.account", "com.live106.mars.account.service", "com.live106.mars.account.rpc", 
 		"com.live106.mars.protocol.thrift.game",
-//		"com.live106.mars.master.processor", "com.live106.mars.protocol.handler"
 		})
 @PropertySource("classpath:/datasource.properties")
-// @PropertySources(value =
-// {@PropertySource("classpath:/datasource.properties")})
 public class AccountAppConfig {
 	@Autowired
 	private Environment env;
@@ -58,13 +55,16 @@ public class AccountAppConfig {
 		new Thread(thriftServer, "thrfit-server-account").start();
 	}
 	
+	/**
+	 * 提供Thrift RPC 服务
+	 */
 	Runnable thriftServer = new Runnable() {
 		public void run() {
 			try {
 				TServerTransport transport = new TServerSocket(GlobalConfig.accountRpcPort);
 				TMultiplexedProcessor processor = new TMultiplexedProcessor();
+				//注册定义的服务
 				processor.registerProcessor(IUserService.class.getSimpleName(), new IUserService.Processor<IUserService.Iface>(userServiceRpc));
-//				processor.registerProcessor(IUserService.class.getSimpleName(), new IUserService.Processor<IUserService.Iface>(new UserServiceRpc()));
 				
 				TServer server = new TThreadPoolServer(new Args(transport)
 						.processor(processor)
@@ -96,6 +96,10 @@ public class AccountAppConfig {
 		return (SqlSessionFactory) sqlSessionFactory.getObject();
 	}
 	
+	/**
+	 * 定义RPC服务代理Bean
+	 * @return
+	 */
 	@Bean
 	public TServiceClientBeanProxyFactory gamePlayerService() {
 		try {

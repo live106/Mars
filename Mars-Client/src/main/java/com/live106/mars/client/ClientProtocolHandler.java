@@ -25,7 +25,7 @@ public class ClientProtocolHandler extends ChannelHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ProtocolBase pojo = (ProtocolBase) msg;
 		ProtocolMessage message = new ProtocolMessage(pojo, ctx);
-		clientRunner.addMessage(message);//TODO is it necessary to start a thread ?
+		clientRunner.addMessage(message);
 	}
 	
 	@Override

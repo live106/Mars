@@ -29,6 +29,7 @@ service IGameStoreService
 	map<CStore.ResponseStoreScenario, bool> storeScenarioData(1: CStore.RequestStoreScenario request, 2: MarsProtocol.ProtocolHeader header)
 	map<CStore.ScenarioInfo, bool> loadScenarioData(1: CStore.RequestLoadScenario request, 2: MarsProtocol.ProtocolHeader header)
 	
+	map<CArchive.ResponseServerArchiveTime, bool> loadArchiveTimestamp(1: CArchive.RequestServerArchiveTime request, 2: MarsProtocol.ProtocolHeader header) throws (1: CSystem.Notify notify)
 	map<CArchive.ResponseSaveArchive, bool> saveArchive(1: CArchive.RequestSaveArchive request, 2: MarsProtocol.ProtocolHeader header) throws (1: CSystem.Notify notify)
 	map<CArchive.ResponseLoadArchive, bool> loadArchive(1: CArchive.RequestLoadArchive request, 2: MarsProtocol.ProtocolHeader header) throws (1: CSystem.Notify notify)
 }

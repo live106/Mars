@@ -1,17 +1,12 @@
 package com.live106.mars.protocol.config;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 
 /**
- * 
+ * 全局配置，默认冲globalconfig.properties读取配置
  * @author live106 @creation Oct 16, 2015
- *
  */
 public class GlobalConfig {
 	

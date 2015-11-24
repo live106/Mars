@@ -21,23 +21,36 @@ import com.live106.mars.protocol.util.ProtocolSerializer;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
+ * 消息处理辅助包装类
  * @author live106 @creation Oct 16, 2015
- *
  */
 public class MessageProcessor<T> {
 	private T processor;
 	private Method method;
-	private String messageBasePackage = "com.live106.mars.protocol.thrift";// TODO
-	private String messageName;
+	private String messageBasePackage = "com.live106.mars.protocol.thrift";//TODO configurable
+	private Class<?> messageClass;
 
 	public MessageProcessor(T processor, Method method, String messageName) {
 		this.processor = processor;
 		this.method = method;
-		this.messageName = messageName;
+		try {
+			messageClass = Class.forName(String.format("%s.%s", messageBasePackage, messageName));
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
+	/**
+	 * 调用消息处理方法
+	 * @param message
+	 * @throws TException
+	 */
 	@SuppressWarnings("rawtypes")
 	void invoke(ProtocolMessage message) throws TException {
+		if (messageClass == null) {
+			return;
+		}
+		
 		ChannelHandlerContext context = message.getContext();
 		if (context == null) {
 			return;
@@ -50,11 +63,11 @@ public class MessageProcessor<T> {
 		case SERIALIZE_TYPE_THRIFT: {
 			try {
 				ProtocolPeer2Peer request = (ProtocolPeer2Peer) message.getPojo();
-				Class<?> requestClass = Class.forName(String.format("%s.%s", messageBasePackage, messageName));
-				TBase<?, ?> requestData = (TBase<?, ?>) requestClass.newInstance();
+				TBase<?, ?> requestData = (TBase<?, ?>) messageClass.newInstance();
 				TDeserializer td = new TDeserializer();
 				td.deserialize(requestData, request.getData());
 
+				//填充方法参数
 				args[0] = requestData;
 				if (args.length > 1) {
 					// example -->
@@ -67,14 +80,15 @@ public class MessageProcessor<T> {
 					}
 					// example --> IGameStoreService::storeLevel
 					else if (parameterTypes[1].isAssignableFrom(ProtocolHeader.class)) {
+						// TODO Check whether UID and passport are matching in the header if the target is GameServer
 						args[1] = request.getHeader();
 					}
-					// example -->
 					else if (parameterTypes[1].isPrimitive()) {
 						args[1] = request.getSourceId();
 					}
 				}
 
+				//调用消息处理方法
 				Object obj = method.invoke(processor, args);
 
 				do {
@@ -91,8 +105,10 @@ public class MessageProcessor<T> {
 						response.getHeader().setCloseSocket((boolean) map.values().iterator().next());
 					} else if (obj instanceof TBase) {
 						responseData = (TBase<?, ?>) obj;
+					} else {
+						break;
 					}
-					
+					//如果有返回协议则回写
 					if (responseData != null) {
 						ProtocolSerializer.serialize(responseData, response);
 						context.writeAndFlush(response);
@@ -100,12 +116,12 @@ public class MessageProcessor<T> {
 
 				} while (false);
 
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | TException e) {
 				
 				if (e instanceof InvocationTargetException) {
 					InvocationTargetException ite = (InvocationTargetException) e;
-					
+					//发送异常协议
 					if (ite.getTargetException() instanceof Notify) {
 						Notify notify = (Notify) ite.getTargetException();
 						ProtocolPeer2Peer response = new ProtocolPeer2Peer();
@@ -144,19 +160,4 @@ public class MessageProcessor<T> {
 		this.method = method;
 	}
 
-	public String getMessageBasePackage() {
-		return messageBasePackage;
-	}
-
-	public void setMessageBasePackage(String messageBasePackage) {
-		this.messageBasePackage = messageBasePackage;
-	}
-
-	public String getClassName() {
-		return messageName;
-	}
-
-	public void setClassName(String className) {
-		this.messageName = className;
-	}
 }

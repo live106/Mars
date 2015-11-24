@@ -27,11 +27,16 @@ import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * 协议加密工具类
+ * @author live106 @creation Nov 24, 2015
+ *
+ */
 public class ProtocolCrypto {
 
 	// 非对称密钥算法
 	public static final String KEY_ALGORITHM = "DH";
-	// 本地密钥算法，即对称加密算法。可选des，aes，desede
+	// 本地密钥算法，即对称加密算法。可选DES，AES，DESEDE.
 	public static final String SECRET_ALGORITHM = "AES";
 
 	/**

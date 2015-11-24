@@ -29,6 +29,7 @@ import com.live106.mars.account.service.UserService;
 import com.live106.mars.protocol.thrift.IUserService.Iface;
 import com.live106.mars.protocol.thrift.LoginCode;
 import com.live106.mars.protocol.thrift.LoginType;
+import com.live106.mars.protocol.thrift.Notify;
 import com.live106.mars.protocol.thrift.RequestAuthServerPublicKey;
 import com.live106.mars.protocol.thrift.RequestSendClientPublicKey;
 import com.live106.mars.protocol.thrift.RequestUserLogin;
@@ -39,8 +40,8 @@ import com.live106.mars.protocol.thrift.game.MessageUserSecureInfo;
 import com.live106.mars.util.LoggerHelper;
 
 /**
+ * 用户相关RPC服务
  * @author live106 @creation Oct 16, 2015
- *
  */
 @Service
 public class UserServiceRpc implements Iface, IRedisConstants {
@@ -57,18 +58,23 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 		return "hello " + visitor;
 	}
 
+	/**
+	 * 获取服务器DH公钥
+	 */
 	@Override
 	public ResponseAuthServerPublicKey getPubKey(RequestAuthServerPublicKey request, String channelId) throws TException {
 		ResponseAuthServerPublicKey resp = new ResponseAuthServerPublicKey();
 		try {
 			resp.setServerPubKey(userService.getServerPublicKeyBase64());
 		} catch (NoSuchAlgorithmException e) {
-			//
 			e.printStackTrace();
 		}
 		return resp;
 	}
 
+	/**
+	 * 保存客户端发来的公钥
+	 */
 	@Override
 	public ResponseSendClientPublicKey sendPubKey(RequestSendClientPublicKey request, String channelId) throws TException {
 		boolean result = false;
@@ -80,22 +86,19 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 			resp.setMsg("client public key is invalid." + clientPubKey);
 			return resp;
 		}
-//		try {
-//			userService.generateSecretKey(channelId, clientPubKey);
-			userService.storeClientAesKey(channelId, clientPubKey);
-			
-			LoggerHelper.debug(logger, ()->String.format("received client public key %s-->%s",  channelId, Arrays.toString(clientPubKey.getBytes())));
-			
-			result = true;
-//		} catch (InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | IllegalStateException e) {
-//			e.printStackTrace();
-//		}
+		userService.storeClientAesKey(channelId, clientPubKey);
+		
+		LoggerHelper.debug(logger, ()->String.format("received client public key %s-->%s",  channelId, Arrays.toString(clientPubKey.getBytes())));
+		
+		result = true;
 		resp.setResult(result);
 		resp.setMsg("server has received client public key.");
 		return resp;
 	}
 	
-//Redis version
+	/**
+	 * 账号登录处理 //Redis version
+	 */
 	@Override
 	public ResponseUserLogin doLogin(RequestUserLogin request, String channelId) throws TException {
 		Map<String, String> usermap = null;
@@ -105,6 +108,9 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 			LoginType type = request.getType();
 			switch (type) {
 			case USER_ACCOUNT:
+			{
+				throw new Notify("User login type not supported!" + type.name());
+			}
 //			{
 //				String encrytedUsername = request.getUsername();
 //				String encrytedPassword = request.getPassword();
@@ -124,26 +130,28 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 //				break;
 //			}
 			case USER_GUEST:
-			{
-				String encrytedMachineId = request.getMachineId();
-				String machineId = null;
-				if (StringUtils.isEmpty(encrytedMachineId)) {
-					machineId = UUID.randomUUID().toString();
-				} else {
-					machineId = userService.aesDecrypt(channelId, encrytedMachineId);
+				{
+					String encrytedMachineId = request.getMachineId();
+					String machineId = null;
+					if (StringUtils.isEmpty(encrytedMachineId)) {
+						machineId = UUID.randomUUID().toString();
+					} else {
+						machineId = userService.aesDecrypt(channelId, encrytedMachineId);
+					}
+					if (userService.isValidMachineId(machineId)){
+						usermap = userService.loginByMachineId(machineId);
+						resp.setMachineId(machineId);
+					}
+					break;
 				}
-				if (userService.isValidMachineId(machineId)){
-					usermap = userService.loginByMachineId(machineId);
-					resp.setMachineId(machineId);
-				}
-				break;
-			}
 			case USER_THIRDPARTY:
-			{
-				break;
-			}
+				{
+					throw new Notify("User login type not supported!" + type.name());
+				}
 			default:
-				break;
+				{
+					throw new Notify("User login type not supported!" + type.name());
+				}
 			}
 			
 			if (usermap != null) {
@@ -186,6 +194,12 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 		
 		resp.setCode(usermap != null ? LoginCode.OK : LoginCode.ERROR);
 		resp.setMsg(usermap != null ? "登陆成功！" : "用户名或密码错误！");
+		
+		if (usermap != null) {
+			//remove client public key cache
+			String key = userService.delUserClientKey(channelId);
+			LoggerHelper.debug(logger, ()->String.format("Delete user %d client public key %s after login success. ", resp.getUid(), key));
+		}
 		
 		return resp;
 	}

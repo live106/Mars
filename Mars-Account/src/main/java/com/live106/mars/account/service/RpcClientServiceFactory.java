@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import com.live106.mars.protocol.thrift.game.IGamePlayerService;
 
 /**
+ * 管理RPC调用接口
  * @author live106 @creation Oct 23, 2015
- *
  */
 @Service
 public class RpcClientServiceFactory {

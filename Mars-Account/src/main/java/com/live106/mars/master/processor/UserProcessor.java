@@ -9,11 +9,12 @@ import com.live106.mars.protocol.handler.ProtocolProcessor;
 import com.live106.mars.protocol.handler.annotation.Processor;
 
 /**
+ * 账号协议处理类，已废弃，功能服务器协议处理全部改用RPC调用实现
  * @author live106 @creation Oct 9, 2015
- *
  */
 @Service
 @Processor
+@Deprecated
 public class UserProcessor implements ProtocolProcessor {
 //	@Autowired
 //	private UserService userService;

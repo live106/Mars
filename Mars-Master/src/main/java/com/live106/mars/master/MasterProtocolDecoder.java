@@ -10,6 +10,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+/**
+ * Netty消息解码
+ * @author live106 @creation Nov 24, 2015
+ *
+ */
 public class MasterProtocolDecoder extends ByteToMessageDecoder {
 
 	@Override
@@ -20,53 +25,22 @@ public class MasterProtocolDecoder extends ByteToMessageDecoder {
 		
 		int headerLen = in.readInt();
 		if (headerLen == 0) {
-			in.skipBytes(in.readableBytes());//FIXME skip all ?
+			in.skipBytes(in.readableBytes());//XXX skip all ?
 			return;
 		}
+		//XXX 可考虑优化整体流程设计，在此处避免对消息头的解析过程
+		//解析原协议头
 		byte[] header = new byte[headerLen];
 		in.readBytes(header);
 		ProtocolHeader pHeader = new ProtocolHeader();
 		ProtocolSerializer.deserialize(pHeader, header);
 
+		//组装转发协议
 		ProtocolPeer2Peer pojo = new ProtocolPeer2Peer();
 		pojo.setHeader(pHeader);
 		pojo.decode(in);
 		
 		out.add(pojo);
-		
-//		switch (pHeader.getTargetType()) {
-//		case PEER_TYPE_MASTER:
-//			{
-//				//decode package if target server is Master itself.
-//				ProtocolPeer2Peer pojo = new ProtocolPeer2Peer();
-//				pojo.setHeader(pHeader);
-//				pojo.decode(in);
-//				
-//				out.add(pojo);
-//				break;
-//			}
-//		case PEER_TYPE_ACCOUNT:
-//		case PEER_TYPE_GAME:
-//		case PEER_TYPE_CLIENT:
-//			{
-//				//transfer the package to the specify target.
-//				ProtocolTranser pojo = new ProtocolTranser();
-//				pojo.setHeader(pHeader);
-//				if (pHeader.getSourceType() == PeerType.PEER_TYPE_CLIENT) {
-//					pojo.decode(ctx.channel().id().asLongText().hashCode(), in);
-//				} else {
-//					pojo.decode(in);
-//				}
-//				out.add(pojo);
-//				break;
-//			}
-//		default:
-//			{
-//				in.skipBytes(in.readableBytes());//FIXME skip all ?
-//				break;
-//			}
-//		}
-		
 	}
 
 }

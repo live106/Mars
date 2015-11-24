@@ -44,6 +44,7 @@ import com.live106.mars.protocol.thrift.ResponseGameConnect;
 import com.live106.mars.protocol.thrift.ResponseLoadArchive;
 import com.live106.mars.protocol.thrift.ResponseSaveArchive;
 import com.live106.mars.protocol.thrift.ResponseSendClientPublicKey;
+import com.live106.mars.protocol.thrift.ResponseServerArchiveTime;
 import com.live106.mars.protocol.thrift.ResponseStoreScenario;
 import com.live106.mars.protocol.thrift.ResponseUserLogin;
 import com.live106.mars.protocol.thrift.ReuqestGameConnect;
@@ -99,6 +100,9 @@ public class ClientProcessor implements ProtocolProcessor {
 	@ProcessorMethod(messageClass = ResponseSendClientPublicKey.class)
 	public ProtocolBase receiveSendClientPublicKey(ChannelHandlerContext context, ResponseSendClientPublicKey response)
 			throws Exception {
+		
+		LoggerHelper.debug(logger, ()->String.format("ResponseSendClientPublicKey delay %d ms", System.currentTimeMillis() - runner.getLastSendTime()));
+		
 		boolean result = response.isResult();
 		if (result) {
 			RequestUserLogin request = new RequestUserLogin();
@@ -121,6 +125,9 @@ public class ClientProcessor implements ProtocolProcessor {
 
 	@ProcessorMethod(messageClass = ResponseUserLogin.class)
 	public ProtocolBase receiveUserLogin(ChannelHandlerContext context, ResponseUserLogin response) throws TException {
+		
+		LoggerHelper.debug(logger, ()->String.format("ResponseUserLogin delay %d ms", System.currentTimeMillis() - runner.getLastSendTime()));
+		
 		LoginCode code = response.getCode();
 		switch (code) {
 		case OK:
@@ -177,6 +184,8 @@ public class ClientProcessor implements ProtocolProcessor {
 				| BadPaddingException | InvalidAlgorithmParameterException e) {
 			e.printStackTrace();
 		}
+		
+		runner.setLastSendTime(System.currentTimeMillis());
 
 		return ProtocolSerializer.serialize(request, protocol);
 	}
@@ -184,6 +193,8 @@ public class ClientProcessor implements ProtocolProcessor {
 	@ProcessorMethod(messageClass = ResponseGameConnect.class)
 	public ProtocolBase receiveGameConnect(ChannelHandlerContext context, ResponseGameConnect response)
 			throws TException {
+		
+		LoggerHelper.debug(logger, ()->String.format("ResponseGameConnect delay %d ms", System.currentTimeMillis() - runner.getLastSendTime()));
 		LoggerHelper.debug(logger, () -> String.format("玩家{%d}登录游戏服务器：%s", runner.getUid(), response.isResult()));
 
 		// 存储关卡信息
@@ -271,6 +282,13 @@ public class ClientProcessor implements ProtocolProcessor {
 			}).start();
 		}
 
+		return null;
+	}
+	
+	@ProcessorMethod(messageClass = ResponseServerArchiveTime.class)
+	public ProtocolBase receiveArchiveTimestamp(ChannelHandlerContext context, ResponseServerArchiveTime response) throws TException {
+		LoggerHelper.debug(logger, ()->String.format("load archive timestamp result : %d", response.getTimestamp()));
+		runner.printConsole(String.valueOf(response.getTimestamp()));
 		return null;
 	}
 	

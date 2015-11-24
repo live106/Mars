@@ -11,8 +11,8 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.internal.PlatformDependent;
 
 /**
+ * 可用于存储和管理Channel连接，目前尚未使用
  * @author live106 @creation Oct 13, 2015
- *
  */
 public class MasterChannelGroup extends DefaultChannelGroup {
 	

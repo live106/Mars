@@ -42,8 +42,8 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakDetector.Level;
 
 /**
+ * Master启动初始类
  * @author live106 @creation Oct 10, 2015
- *
  */
 @Service
 public class MasterApplication {
@@ -55,6 +55,10 @@ public class MasterApplication {
 	@Autowired
 	private IGameStoreService.Iface gameStoreRpcClient;
 	
+	/**
+	 * 账号RPC调用Client代理Bean
+	 * @return
+	 */
 	@Bean
 	public TServiceClientBeanProxyFactory userRpcClient() {
 		try {
@@ -65,6 +69,9 @@ public class MasterApplication {
 		return null;
 	}
 	
+	/**
+	 * 玩家RPC调用Client代理Bean
+	 */
 	@Bean
 	public TServiceClientBeanProxyFactory playerRpcClient() {
 		try {
@@ -75,6 +82,10 @@ public class MasterApplication {
 		return null;
 	}
 	
+	/**
+	 * 游戏存储RPC调用Client代理Bean
+	 * @return
+	 */
 	@Bean
 	public TServiceClientBeanProxyFactory gameStoreRpcClient() {
 		try {
@@ -85,24 +96,25 @@ public class MasterApplication {
 		return null;
 	}
 	
+	/**
+	 * 协议分发Bean
+	 */
 	@Autowired
 	private ProtocolMessageRPCDispacher protocolMessageRPCDispacher;
 	
 	@PostConstruct
 	public void init() throws InterruptedException {
+		//初始化协议分发管理类
 		protocolMessageRPCDispacher.start();
-		
-//		Thread threadAccRpcClient = new Thread(accountRpcClient);
-//		threadAccRpcClient.start();
+		//启动Master Netty服务
 		new Thread(masterNettyServer, "netty-server-master").start();
 //		new Thread(thriftServer).start();
 
-//		threadAccRpcClient.join();
-		
+		//注册RPC处理类方法到协议分发管理类
 		Map<Integer, MessageProcessor<?>> processors = protocolMessageRPCDispacher.getMessageProcessors();
 		Map<Integer, String> hashes = protocolMessageRPCDispacher.getMessageHashes();
 		
-		//FIXME reconstruction with reflection
+		//TODO reconstruction with reflection
 		Method[] methods = IUserService.Iface.class.getDeclaredMethods();
 		for (Method method : methods) {
 			String messageName = method.getParameterTypes()[0].getSimpleName();
@@ -128,23 +140,9 @@ public class MasterApplication {
 		}
 	}
 	
-//	Runnable accountRpcClient = new Runnable() {
-//		public void run() {
-//			try {
-//				TTransport transport = new TSocket(GlobalConfig.accountRpcHost, GlobalConfig.accountRpcPort);
-//				transport.open();
-//				
-//				TProtocol protocol = new TBinaryProtocol(transport);
-//				TMultiplexedProtocol mProtocol = new TMultiplexedProtocol(protocol, IUserService.class.getSimpleName());
-//
-//				userRpcClient0 = new IUserService.Client(mProtocol);
-//				
-//			} catch (TException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//	};
-
+	/**
+	 * 提供RPC服务
+	 */
 	Runnable thriftServer = new Runnable() {
 		public void run() {
 			try {
@@ -162,6 +160,9 @@ public class MasterApplication {
 		}
 	};
 
+	/**
+	 * Netty 服务器
+	 */
 	Runnable masterNettyServer = new Runnable() {
 		public void run() {
 			

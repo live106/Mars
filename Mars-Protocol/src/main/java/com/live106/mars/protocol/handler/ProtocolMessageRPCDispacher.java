@@ -1,7 +1,5 @@
 package com.live106.mars.protocol.handler;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -13,22 +11,30 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.live106.mars.concurrent.MarsDefaultThreadFactory;
-import com.live106.mars.protocol.handler.annotation.ProcessorMethod;
 import com.live106.mars.protocol.queue.ProtocolMQ;
 import com.live106.mars.protocol.queue.ProtocolMessage;
 import com.live106.mars.util.LoggerHelper;
 
 /**
+ * 协议分发管理类
  * @author live106 @creation Oct 9, 2015
- *
  */
 @Service
 public class ProtocolMessageRPCDispacher {
 
 	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageRPCDispacher.class);
 
+	/**
+	 * 协议到处理类方法的映射
+	 */
 	private volatile Map<Integer, MessageProcessor<?>> messageProcessors = new ConcurrentHashMap<>();
+	/**
+	 * 协议hash到字符串名称的映射
+	 */
 	private volatile Map<Integer, String> messageHashes = new ConcurrentHashMap<>();
+	/**
+	 * 协议消息处理的线程池
+	 */
 	private static ExecutorService executor = Executors.newCachedThreadPool(new MarsDefaultThreadFactory("ml"));
 	private static byte[] lock = new byte[0];
 
@@ -42,6 +48,9 @@ public class ProtocolMessageRPCDispacher {
 		executor.submit(messageListener);
 	}
 	
+	/**
+	 * 协议坚挺线程
+	 */
 	Runnable messageListener = new Runnable() {
 		public void run() {
 			while (true) {
@@ -57,6 +66,7 @@ public class ProtocolMessageRPCDispacher {
 						final String hashHex = Integer.toHexString(message.getPojo().getProtocolHash());
 						final String messageString = messageHashes.get(message.getPojo().getProtocolHash());
 						
+						//启动线程进行协议消息处理
 						executor.submit(() -> {
 
 							LoggerHelper.debug(logger,
@@ -89,40 +99,6 @@ public class ProtocolMessageRPCDispacher {
 			}
 		}
 	};
-
-	/**
-	 * 
-	 * @param processors
-	 *            processorName->processor's instance
-	 */
-	public void scanProcessor(Map<String, Object> processors) {
-		for (String s : processors.keySet()) {
-			Object obj = processors.get(s);
-
-			Map<String, Method> methods = getMethodsWithAnnotation(obj.getClass(), ProcessorMethod.class);
-			for (String messageName : methods.keySet()) {
-				MessageProcessor<ProtocolProcessor> messageProcessor = new MessageProcessor<ProtocolProcessor>(
-						(ProtocolProcessor) obj, methods.get(messageName), messageName);
-				messageProcessors.put(messageName.hashCode(), messageProcessor);
-				messageHashes.put(messageName.hashCode(), messageName);
-			}
-		}
-	}
-
-	private Map<String, Method> getMethodsWithAnnotation(Class<? extends Object> processorClass,
-			Class<? extends ProcessorMethod> annotationClass) {
-		Map<String, Method> messageMethods = new HashMap<>();
-		Method[] methods = processorClass.getMethods();
-		for (Method method : methods) {
-			ProcessorMethod annotation = method.getAnnotation(annotationClass);
-			if (annotation != null) {
-				String messageName = annotation.messageClass().getSimpleName();
-				messageMethods.put(messageName, method);
-			}
-
-		}
-		return messageMethods;
-	}
 
 	public Map<Integer, MessageProcessor<?>> getMessageProcessors() {
 		return messageProcessors;

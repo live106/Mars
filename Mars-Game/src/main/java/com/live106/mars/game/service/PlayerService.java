@@ -29,8 +29,9 @@ import com.live106.mars.protocol.util.Cryptor;
 import com.live106.mars.util.LoggerHelper;
 
 /**
+ * <h1>玩家服务类</h1>
+ * <br>
  * @author live106 @creation Oct 8, 2015
- *
  */
 
 @Service
@@ -51,25 +52,43 @@ public class PlayerService {
 		this.playerMapper = playerMapper;
 	}
 
+	/**
+	 * 保存玩家账号登录安全信息{@link MessageUserSecureInfo}
+	 * @param secureInfo
+	 * @return
+	 * @throws TException
+	 */
 	public boolean addPlayerSecureInfo(MessageUserSecureInfo secureInfo) throws TException {
-//		return gameCacheManager.addPlayerSecureInfo(secureInfo);
 		return gameSecureRedis.storeUserSecureInfo(secureInfo);
 	}
 
+	/**
+	 * 校验玩家账号登陆信息
+	 * @param request
+	 * @return
+	 * @throws InvalidKeyException
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchPaddingException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws TException
+	 */
 	public boolean checkUserConnect(ReuqestGameConnect request) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, TException {
-//		MessageUserSecureInfo secureInfo = gameCacheManager.getPlayerSecureInfo(request.getUid());
 		MessageUserSecureInfo secureInfo = gameSecureRedis.loadUserSecureInfo(request.getUid());
 		boolean result = false;
 		do {
 			if (secureInfo == null) {
 				throw new Notify("not login or session timeout!");
 			}
-			//FIXME check gameserver field first.
+			//TODO check gameserver field first.
 
+			//检查通行证是否匹配
 			if (!request.getPassport().equals(secureInfo.getPassport())) {
 				throw new Notify("uid and passport not match!");
 			}
 			
+			//检查randomKey字段加密后是否一致 randomKey = gameserver + uid + sequenceId(客户端自增)
 			String checkString = String.format("%s%d%d", request.getGameserver(), request.getUid(), request.getSequenceId());
 			Cryptor cryptor = new Cryptor(Cryptor.AES);
 			cryptor.setSecretKey(secureInfo.getSecureKey());

@@ -21,8 +21,10 @@ import org.slf4j.LoggerFactory;
 import com.live106.mars.util.LoggerHelper;
 
 /**
+ *  <h1>thrift的RPC调用连接池</h1>
+ *  <br>
+ * 
  * @author live106 @creation Oct 20, 2015
- *
  */
 public class TServiceClientPoolFactory extends BasePooledObjectFactory<TServiceClient> {
 
@@ -35,6 +37,13 @@ public class TServiceClientPoolFactory extends BasePooledObjectFactory<TServiceC
 	private AtomicInteger counter = new AtomicInteger(1);
 	private String serviceName = "";
 
+	/**
+	 * 初始化连接池参数
+	 * @param host 远程RPC服务地址
+	 * @param port 远程RPC服务端口
+	 * @param clientFactory RPC客户端client对应的factory
+	 * @param serviceName 远程RPC服务名
+	 */
 	public TServiceClientPoolFactory(String host, int port, TServiceClientFactory<TServiceClient> clientFactory,
 			String serviceName) {
 		this.clientFactory = clientFactory;
@@ -43,6 +52,9 @@ public class TServiceClientPoolFactory extends BasePooledObjectFactory<TServiceC
 		this.serviceName = serviceName;
 	}
 
+	/**
+	 * 创建对象时进行TSocket连接
+	 */
 	@Override
 	public TServiceClient create() throws Exception {
 		TServiceClient client;
@@ -66,10 +78,12 @@ public class TServiceClientPoolFactory extends BasePooledObjectFactory<TServiceC
 
 	@Override
 	public PooledObject<TServiceClient> wrap(TServiceClient obj) {
-		// FIXME
 		return new DefaultPooledObject<TServiceClient>(obj);
 	}
 
+	/**
+	 * 校验RPC调用Client是否仍正常连接
+	 */
 	@Override
 	public boolean validateObject(PooledObject<TServiceClient> p) {
 		TServiceClient client = p.getObject();

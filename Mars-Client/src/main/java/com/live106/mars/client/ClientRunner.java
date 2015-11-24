@@ -1,5 +1,6 @@
 package com.live106.mars.client;
 
+import java.io.PrintWriter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import com.live106.mars.client.console.Console;
 import com.live106.mars.protocol.coder.ProtocolDecoder;
 import com.live106.mars.protocol.coder.ProtocolEncoder;
 import com.live106.mars.protocol.config.GlobalConfig;
@@ -34,6 +37,7 @@ import com.live106.mars.protocol.thrift.PeerType;
 import com.live106.mars.protocol.thrift.RequestLoadArchive;
 import com.live106.mars.protocol.thrift.RequestSaveArchive;
 import com.live106.mars.protocol.thrift.RequestSendClientPublicKey;
+import com.live106.mars.protocol.thrift.RequestServerArchiveTime;
 import com.live106.mars.protocol.thrift.SerializeType;
 import com.live106.mars.protocol.thrift.TArchiveInfo;
 import com.live106.mars.protocol.thrift.TProcessInfo;
@@ -92,16 +96,11 @@ public class ClientRunner implements ProcessorListener {
 	private int mission = 1;
 	
 	public ChannelFuture connectChannelFulture() {
-		if (connectThread == null) {
-			return null;
-		}
-		if (connectThread.connectChannelFulture == null) {
-			return null;
-		}
-		if (doReconnect) {
+		if (connectThread == null || connectThread.connectChannelFulture == null
+				|| !connectThread.connectChannelFulture.channel().isActive() || doReconnect) {
 			try {
 				this.reconnect();
-				synchronized(connectorLock) {
+				synchronized (connectorLock) {
 					connectorLock.wait();
 				}
 			} catch (InterruptedException e) {
@@ -112,11 +111,6 @@ public class ClientRunner implements ProcessorListener {
 	}
 	
 	public void start() throws NoSuchAlgorithmException, TException, InterruptedException, InvalidAlgorithmParameterException {
-		if (connectChannelFulture() == null) {
-			synchronized (connectorLock) {
-				connectorLock.wait();
-			}
-		}
 		
 		synchronized (runners) {
 			runners.add(this);
@@ -138,12 +132,40 @@ public class ClientRunner implements ProcessorListener {
 		request.setClientPubKey(secretKey);
 		ProtocolSerializer.serialize(request, tp);
 		
-		ch.writeAndFlush(tp);
+		send(ch, tp);
 				
 		LoggerHelper.debug(logger, ()->String.format("%s start.", Thread.currentThread().getName()));
 	}
+
+	private void send(Channel ch, ProtocolPeer2Peer tp) {
+		lastSendTime = System.currentTimeMillis();
+		ch.writeAndFlush(tp);
+	}
+	
+
+	public void checkArchive() throws TException {
+		
+		ProtocolPeer2Peer tp = new ProtocolPeer2Peer();
+		tp.getHeader().setTargetType(PeerType.PEER_TYPE_GAME);
+		tp.getHeader().setSourceType(PeerType.PEER_TYPE_CLIENT);
+		tp.getHeader().setSerializeType(SerializeType.SERIALIZE_TYPE_THRIFT);
+		
+		tp.getHeader().setSourceId(uid);
+		tp.getHeader().setPassport(passport);
+		
+		RequestServerArchiveTime request = new RequestServerArchiveTime();
+		request.setTimestamp(0);//
+		
+		ProtocolSerializer.serialize(request, tp);
+		
+		Channel ch = connectChannelFulture().channel();
+		send(ch, tp);
+		
+		LoggerHelper.debug(logger, ()->String.format("%s request load archive timestamp.\n", this.toString()));
+	}
 	
 	public void saveArchive() throws TException {
+		
 		ProtocolPeer2Peer tp = new ProtocolPeer2Peer();
 		tp.getHeader().setTargetType(PeerType.PEER_TYPE_GAME);
 		tp.getHeader().setSourceType(PeerType.PEER_TYPE_CLIENT);
@@ -179,12 +201,13 @@ public class ClientRunner implements ProcessorListener {
 		ProtocolSerializer.serialize(request, tp);
 		
 		Channel ch = connectChannelFulture().channel();
-		ch.writeAndFlush(tp);
+		send(ch, tp);
 		
-		LoggerHelper.debug(logger, ()->String.format("%s save archive.\n%s", this.toString(), archive.toString()));
+		LoggerHelper.debug(logger, ()->String.format("%s request save archive.\n%s", this.toString(), archive.toString()));
 	}
 	
 	public void loadArchive() throws TException {
+		
 		ProtocolPeer2Peer tp = new ProtocolPeer2Peer();
 		tp.getHeader().setTargetType(PeerType.PEER_TYPE_GAME);
 		tp.getHeader().setSourceType(PeerType.PEER_TYPE_CLIENT);
@@ -197,7 +220,7 @@ public class ClientRunner implements ProcessorListener {
 		ProtocolSerializer.serialize(request, tp);
 		
 		Channel ch = connectChannelFulture().channel();
-		ch.writeAndFlush(tp);
+		send(ch, tp);
 		
 		LoggerHelper.debug(logger, ()->String.format("%s load archive.", this.toString()));
 	}
@@ -339,6 +362,10 @@ public class ClientRunner implements ProcessorListener {
 
 	private int threadNumber;
 
+	private PrintWriter consoleWriter;
+
+	private long lastSendTime;
+
 	public void setClientProtocolHandler(ClientProtocolHandler clientProtocolHandler) {
 		this.clientProtocolHandler = clientProtocolHandler;
 	}
@@ -377,6 +404,34 @@ public class ClientRunner implements ProcessorListener {
 
 	public void setThreadNumber(int number) {
 		this.threadNumber = number;
+	}
+
+	public PrintWriter getConsoleWriter() {
+		return consoleWriter;
+	}
+
+	public void setConsoleWriter(PrintWriter consoleWriter) {
+		this.consoleWriter = consoleWriter;
+	}
+
+	public void printConsole(String output) {
+		if (StringUtils.isBlank(output)) {
+			return;
+		}
+		if (this.consoleWriter == null) {
+			return;
+		}
+		this.consoleWriter.println(output);
+		this.consoleWriter.print(Console.PROMPT);
+		this.consoleWriter.flush();
+	}
+
+	public long getLastSendTime() {
+		return this.lastSendTime;
+	}
+
+	public void setLastSendTime(long currentTimeMillis) {
+		this.lastSendTime = currentTimeMillis;
 	}
 
 }

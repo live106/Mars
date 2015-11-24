@@ -29,8 +29,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 
 /**
+ * <ol>
+ * <li>初始化协议处理方法集合</li>
+ * <li>分发协议消息至相关处理方法</li>
+ * </ol>
+ * 
  * @author live106 @creation Oct 9, 2015
- *
  */
 @Service
 @Scope(value="prototype")
@@ -41,7 +45,10 @@ public class ProtocolMessageClientDispacher {
 	private Map<Integer, MessageProcessor> messageProcessors = new ConcurrentHashMap<>();
 	private Map<Integer, String> messageHashes = new ConcurrentHashMap<>();
 	
-	//for client
+	/**
+	 * 分发协议消息
+	 * @param message
+	 */
 	public void handleMessage(ProtocolMessage message) {
 		if (!message.getContext().channel().isActive()) {
 			message.getContext().disconnect();
@@ -49,7 +56,10 @@ public class ProtocolMessageClientDispacher {
 		}
 		MessageProcessor messageProcessor = messageProcessors.get(message.getPojo().getProtocolHash());
 		if (messageProcessor == null) {
-			//FIXME log
+			LoggerHelper.debug(logger, ()->{
+				int protocolHash = message.getPojo().getProtocolHash();
+				return String.format("未找到%d-%s协议的处理类。", protocolHash, messageHashes.get(protocolHash));
+			});
 			return;
 		}
 		try {
@@ -59,43 +69,9 @@ public class ProtocolMessageClientDispacher {
 			e.printStackTrace();
 		}
 	}
-	//
-	
-//	public void start() {
-//		new Thread(new Runnable() {
-//			public void run() {
-//				while (true) {
-//					try {
-//						while (ProtocolMQ.getMessageCount() > 0) {
-//							ProtocolMessage message = ProtocolMQ.pollMessage();
-//							//FIXME 
-//							if (!message.getContext().channel().isActive()) {
-//								message.getContext().disconnect();
-//								continue;
-//							}
-//							MessageProcessor messageProcessor = messageProcessors.get(message.getPojo().getProtocolHash());
-//							if (messageProcessor == null) {
-//								//FIXME log
-//								continue;
-//							}
-//							try {
-//								messageProcessor.invoke(message);
-//							} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-//									| ClassNotFoundException | InstantiationException | TException e) {
-//								e.printStackTrace();
-//							}
-//						}
-//						Thread.sleep(10);//FIXME 
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		}).start();
-//	}
 
 	/**
-	 * 
+	 * 初始化消息处理方法集合
 	 * @param processors
 	 *            processorName->processor's instance
 	 */
@@ -120,6 +96,12 @@ public class ProtocolMessageClientDispacher {
 		}
 	}
 
+	/**
+	 * 根据注解获取协议处理类中的消息处理方法
+	 * @param processorClass
+	 * @param annotationClass
+	 * @return
+	 */
 	private Map<String, Method> getMethodsWithAnnotation(Class<? extends Object> processorClass, Class<? extends ProcessorMethod> annotationClass) {
 		Map<String, Method> messageMethods = new HashMap<>();
 		Method[] methods = processorClass.getMethods();
@@ -134,10 +116,15 @@ public class ProtocolMessageClientDispacher {
 		return messageMethods;
 	}
 
+	/**
+	 * 内部类通过反射调用执行消息处理方法
+	 * 
+	 * @author live106 @creation Nov 23, 2015
+	 */
 	class MessageProcessor {
 		ProtocolProcessor processor;
 		Method method;
-		String messageBasePackage = "com.live106.mars.protocol.thrift";//TODO
+		String messageBasePackage = "com.live106.mars.protocol.thrift";//TODO configurable
 		
 		public MessageProcessor(ProtocolProcessor processor, Method method) {
 			this.processor = processor;
@@ -162,9 +149,8 @@ public class ProtocolMessageClientDispacher {
 					TDeserializer td = new TDeserializer();
 					td.deserialize(requestData, request.getData());
 					
-//					ChannelHandlerContext context = message.getContext();
-//					args[0] = context;
-					args[0] = null;
+					//协议处理方法参数列表，默认为{ChannelHandlerContext c, ? extends TBase response, ProtocolPeer2Peer request}, 根据需要取舍方法定义参数
+					args[0] = null;//目前ChannelHandlerContext未使用，发送数据channel可在runner中获取。
 					args[1] = requestData;
 					if (args.length > 2) {
 						args[2] = request;
@@ -174,16 +160,16 @@ public class ProtocolMessageClientDispacher {
 					
 					Channel channel = runner.connectChannelFulture().channel();
 					
+					//根据服务器标识决定是否在处理消息完毕后关闭socket连接
 					if (request.getHeader().isCloseSocket()) {
 						channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
 						runner.doCloseSocket = true;
-//							message.getContext().close();
 					} 
 					
+					//有返回协议则直接回写数据至服务器
 					if (response != null) {
 						ProtocolHeader header = response.getHeader();
 						header.setChannelId(request.getChannelId());
-//						header.setSourceType(request.getTargetType());
 						if (header.getSourceId() < 0 && request.getTargetId() >= 0) {
 							header.setSourceId(request.getTargetId());
 						}
@@ -194,17 +180,10 @@ public class ProtocolMessageClientDispacher {
 							header.setTargetType(request.getSourceType());
 						}
 						
+						//如果socket标识为关闭，则修改标识让ClientRunner重连socket
 						if (request.getHeader().isCloseSocket()) {
-//							runner.reconnect();
 							runner.doReconnect = true;
 							runner.connectChannelFulture().channel().writeAndFlush(response);
-//							runner.connectChannelFulture().addListener((ChannelFuture f) -> {
-//								if (f.isSuccess()) {
-//									f.channel().writeAndFlush(response);
-//								} else {
-//									//...
-//								}
-//							});
 						} else {
 							channel.writeAndFlush(response);
 						}
@@ -213,17 +192,12 @@ public class ProtocolMessageClientDispacher {
 				}
 			case SERIALIZE_TYPE_PROTOBUFFER:
 				{
+					//TODO protobuffer 协议格式暂未支持
 					break;
 				}
 			default:
 				break;
 			}
-			
-//			if (args.length != method.getParameterCount()) {
-//				throw new IllegalArgumentException("");
-//			}
-////			Class<?>[] parameterTypes = method.getParameterTypes();
-//			method.invoke(processor, args);
 		}
 	}
 }

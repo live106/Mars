@@ -7,8 +7,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 
 /**
+ * 代理服务器Channel初始化配置
  * @author None
- *
  */
 public class ConnectorInitializer extends ChannelInitializer<SocketChannel> {
 	private final String remoteHost;

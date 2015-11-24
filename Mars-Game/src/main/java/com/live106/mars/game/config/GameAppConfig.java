@@ -40,8 +40,8 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
 
 /**
+ * 游戏服务器Spring启动配置文件
  * @author live106 @creation Oct 8, 2015
- *
  */
 @Configuration
 @MapperScan({ "com.live106.mars.game.db.mapper" })
@@ -60,27 +60,22 @@ public class GameAppConfig {
 		new Thread(thriftServer, "thrift-server-game").start();
 	}
 
+	/**
+	 * 游戏服RPC服务
+	 */
 	Runnable thriftServer = new Runnable() {
 		public void run() {
 			try {
 				TServerTransport transport = new TServerSocket(GlobalConfig.gameRpcPort);
 				TMultiplexedProcessor processor = new TMultiplexedProcessor();
 				
-				//TODO reconstruction with reflection
+				//注册服务
 				processor.registerProcessor(IGamePlayerService.class.getSimpleName(), new IGamePlayerService.Processor<IGamePlayerService.Iface>(gamePlayerServiceRpc));
 				processor.registerProcessor(IGameStoreService.class.getSimpleName(), new IGameStoreService.Processor<IGameStoreService.Iface>(gameStoreServiceRpc));
 
 				TServer server = new TThreadPoolServer(new Args(transport)
 						.processor(processor)
 						.maxWorkerThreads(10)
-//						.executorService(new ThreadPoolExecutor(10, 10, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new RejectedExecutionHandler() {
-//						
-//							@Override
-//							public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-//								//FIXME handle the rejection
-//								System.err.println("rejection!");
-//							}
-//						}))
 						.executorService(Executors.newCachedThreadPool(new MarsDefaultThreadFactory("thrift-pool-game")))
 						.requestTimeout(3)
 						.requestTimeoutUnit(TimeUnit.SECONDS)
@@ -109,7 +104,10 @@ public class GameAppConfig {
 		sqlSessionFactory.setDataSource(dataSource());
 		return (SqlSessionFactory) sqlSessionFactory.getObject();
 	}
-	
+	/**
+	 * 配置Redis连接，当前使用Sentinel模式
+	 * @return
+	 */
 	@Bean
 	public JedisSentinelPool sentinelPool() {
 		Set<String> sentinels = new HashSet<>();

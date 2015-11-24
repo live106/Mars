@@ -26,8 +26,13 @@ import org.springframework.beans.factory.InitializingBean;
 import com.live106.mars.util.LoggerHelper;
 
 /**
+ * <h1>RPC调用client的代理bean工厂类</h1>
+ * <ol>
+ * <li>拦截client方法</li>
+ * <li>从工厂{@link TServiceClientPoolFactory}获取连接池中的client实例执行方法调用</li>
+ * </ol>
+ * 
  * @author live106 @creation Oct 20, 2015
- *
  */
 public class TServiceClientBeanProxyFactory implements FactoryBean<Object>, InitializingBean {
 	
@@ -37,9 +42,12 @@ public class TServiceClientBeanProxyFactory implements FactoryBean<Object>, Init
 	private int port = 8080;
 	private Object clientProxy;
 	private Class<?> ifaceClass;
-	private Class<?> clazz;
+	private Class<?> rpcInterfaceClazz;
 
-	//
+	
+	/**
+	 * 重连机制相关参数
+	 */
 	private Options option = Options.defaults();
 	/**
 	 * List of causes which suggest a restart might fix things (defined as
@@ -90,25 +98,34 @@ public class TServiceClientBeanProxyFactory implements FactoryBean<Object>, Init
 		}
 	}
 
-	public TServiceClientBeanProxyFactory(String host, int port, Class<?> clazz) {
+	/**
+	 * 初始化RPC service bean代理工厂参数
+	 * @param host RPC服务地址
+	 * @param port RPC服务端口
+	 * @param rpcInterfaceClazz RPC服务接口类
+	 */
+	public TServiceClientBeanProxyFactory(String host, int port, Class<?> rpcInterfaceClazz) {
 		this.host = host;
 		this.port = port;
-		this.clazz = clazz;
+		this.rpcInterfaceClazz = rpcInterfaceClazz;
 	}
 
+	/**
+	 * 在设置完bean属性值后{@link BeanFactory}会调用该方法
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		ifaceClass = classLoader.loadClass(clazz.getName() + "$Iface");
+		ifaceClass = classLoader.loadClass(rpcInterfaceClazz.getName() + "$Iface");
 		Class<TServiceClientFactory<TServiceClient>> factoryClass = (Class<TServiceClientFactory<TServiceClient>>) classLoader
-				.loadClass(clazz.getName() + "$Client$Factory");
+				.loadClass(rpcInterfaceClazz.getName() + "$Client$Factory");
 		TServiceClientFactory<TServiceClient> clientFactory = factoryClass.newInstance();
 		TServiceClientPoolFactory poolFactory = new TServiceClientPoolFactory(host, port, clientFactory,
-				clazz.getSimpleName());
+				rpcInterfaceClazz.getSimpleName());
 
 		GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
-		// FIXME set the object pool configuration
+		// TODO set the object pool configuration
 		// poolConfig.setMaxIdle(maxIdle);
 		GenericObjectPool<TServiceClient> pool = new GenericObjectPool<TServiceClient>(poolFactory, poolConfig);
 
@@ -122,6 +139,7 @@ public class TServiceClientBeanProxyFactory implements FactoryBean<Object>, Init
 					if (e.getTargetException() instanceof TTransportException) {
 						TTransportException te = (TTransportException) e.getTargetException();
 						
+						//如果认为是可进行重连尝试的异常则进行重连操作
 						if (RESTARTABLE_CAUSES.contains(te.getType())) {
 							reconnectOrThrowException(client.getInputProtocol().getTransport());
 							return method.invoke(client, args);
@@ -149,6 +167,11 @@ public class TServiceClientBeanProxyFactory implements FactoryBean<Object>, Init
 		});
 	}
 	
+	/**
+	 * 重新连接{@link TTransport}
+	 * @param transport
+	 * @throws TTransportException
+	 */
 	private void reconnectOrThrowException(TTransport transport) throws TTransportException {
 		int errors = 0;
 		transport.close();
@@ -198,5 +221,4 @@ public class TServiceClientBeanProxyFactory implements FactoryBean<Object>, Init
 	public boolean isSingleton() {
 		return true;
 	}
-
 }

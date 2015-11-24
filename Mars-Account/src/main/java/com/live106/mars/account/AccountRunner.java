@@ -15,8 +15,9 @@ import org.springframework.stereotype.Controller;
 import com.live106.mars.account.config.AccountAppConfig;
 
 /**
+ * <h1>账号服务器启动类</h1>
+ * <br>
  * @author live106 @creation Oct 8, 2015
- *
  */
 @Controller
 public class AccountRunner {
@@ -35,29 +36,5 @@ public class AccountRunner {
 		
 		logger.info("Account server started at {}.", new Date().toString());
 	}
-
-//	private static void testMybatisSpring() {
-//		//test bean injection
-//        String[] beanNames = springContext.getBeanDefinitionNames();
-//        Arrays.sort(beanNames);
-//        for (String beanName : beanNames) {
-//            System.out.println(beanName);
-//        }
-//        
-//        //test database access
-//        UserService service = springContext.getBean(UserService.class);
-//        boolean result = service.exist("admin");
-//        System.err.println(result);
-//        
-//        String password = service.getPassword("admin");
-//        System.err.println(password);
-//        
-//        User user = service.getUser("admin");
-//        System.err.println(user.getPassword());
-//        
-//        //test schedule
-//        //test AOP
-//        //test transaction
-//	}
 
 }

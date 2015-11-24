@@ -33,8 +33,13 @@ import com.live106.mars.protocol.util.Cryptor;
 import com.live106.mars.protocol.util.ProtocolCrypto;
 
 /**
+ * <h1>账号服务类</h1>
+ * <ol>
+ * <li>秘钥生成、管理</li>
+ * <li>登录校验</li>
+ * </ol>
+ * <br>
  * @author live106 @creation Oct 8, 2015
- *
  */
 
 @Service
@@ -53,11 +58,7 @@ public class UserService implements IRedisConstants {
 	/* DH + AES end*/
 	
 	/** AES key for user login */
-	private static Map<String, String> aesKeyMap = new ConcurrentHashMap<>();
-	
-	/** AES key for game server */
-	private static Map<Integer, String> secureKeyMap = new ConcurrentHashMap<>();
-	
+	private static Map<String, String> aesKeyMap = new ConcurrentHashMap<>();//TODO  remove data of aesKeyMap in a proper moment.
 	
 	public boolean exist(String name) {
 		UserExample userExample = new UserExample();
@@ -98,7 +99,6 @@ public class UserService implements IRedisConstants {
 	 * @throws NoSuchAlgorithmException
 	 */
 	public synchronized byte[] getServerPublicKey() throws NoSuchAlgorithmException {
-		//FIXME one key per server or one key per user ?
 		if (dhServerKeyMap == null || dhServerKeyMap.size() == 0) {
 			dhServerKeyMap = ProtocolCrypto.generateKey();
 		}
@@ -155,6 +155,10 @@ public class UserService implements IRedisConstants {
 	//Solution 2. start //
 	public void storeClientAesKey(String channelId, String key) {
 		aesKeyMap.put(channelId, key);
+	}
+	
+	public String delUserClientKey(String channelId) {
+		return aesKeyMap.remove(channelId);
 	}
 	
 	/**
@@ -234,7 +238,6 @@ public class UserService implements IRedisConstants {
 		Cryptor cryptor = new Cryptor(Cryptor.AES);
 		cryptor.generateKey();
 		String secureKey = cryptor.getSecretKey();
-		secureKeyMap.put(user.getId(), secureKey);
 		return secureKey;
 	}
 	
@@ -242,7 +245,6 @@ public class UserService implements IRedisConstants {
 		Cryptor cryptor = new Cryptor(Cryptor.AES);
 		cryptor.generateKey();
 		String secureKey = cryptor.getSecretKey();
-		secureKeyMap.put(userid, secureKey);
 		return secureKey;
 	}
 
@@ -250,19 +252,6 @@ public class UserService implements IRedisConstants {
 		return (machineId != null) && (machineId.length() >= 32) || true;
 	}
 
-//	public User loginByMachineId(String machineId) {
-//		User user = userDao.selectByMachineId(machineId);
-//		if (user == null) {
-//			user = new User();
-//			user.setMachineid(machineId);
-//			user.setUsername("");
-//			user.setPassword("");
-//			userDao.insertSelective(user);
-//			return userDao.selectByMachineId(machineId);//FIXME why should I query again? Can MyBatis update the properties of the record which was just inserted ?
-//		} else {
-//			return user;
-//		}
-//	}
 	public Map<String, String> loginByMachineId(String machineId) {
 		Map<String, String> usermap = null;
 		long userId = userRedis.getUserIdByMachineId(machineId);
@@ -276,4 +265,5 @@ public class UserService implements IRedisConstants {
 		
 		return usermap;
 	}
+
 }

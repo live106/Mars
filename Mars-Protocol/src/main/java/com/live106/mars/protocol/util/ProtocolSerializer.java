@@ -12,8 +12,8 @@ import org.apache.thrift.protocol.TJSONProtocol;
 import com.live106.mars.protocol.pojo.ProtocolBase;
 
 /**
+ * Thrift数据结构序列化操作包装类
  * @author live106 @creation Oct 13, 2015
- *
  */
 public class ProtocolSerializer {
 	

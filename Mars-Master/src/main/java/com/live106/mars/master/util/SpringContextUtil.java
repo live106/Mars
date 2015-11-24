@@ -9,8 +9,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
+ * Spring辅助工具类，方便获取上下文、Bean等
  * @author live106 @creation Oct 12, 2015
- *
  */
 @Component
 public class SpringContextUtil implements ApplicationContextAware {
@@ -41,6 +41,5 @@ public class SpringContextUtil implements ApplicationContextAware {
 	public static <T> T getBean(String name) throws BeansException {
 		return (T) applicationContext.getBean(name);
 	}
-	
 
 }

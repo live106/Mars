@@ -8,8 +8,8 @@ import com.live106.mars.protocol.pojo.IProtocol;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
+ * 协议消息包装类
  * @author live106 @creation Oct 9, 2015
- *
  */
 public class ProtocolMessage {
 	private IProtocol pojo;

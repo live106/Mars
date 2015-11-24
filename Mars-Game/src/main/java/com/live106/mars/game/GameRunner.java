@@ -12,8 +12,9 @@ import org.springframework.boot.SpringApplication;
 import com.live106.mars.game.config.GameAppConfig;
 
 /**
+ * <h1>游戏服务器启动类</h1>
+ * <br>
  * @author live106 @creation Oct 23, 2015
- *
  */
 public class GameRunner {
 
@@ -26,14 +27,6 @@ public class GameRunner {
 		SpringApplication.run(GameAppConfig.class, args);
 		
 		logger.info("Game server started at {}.", new Date().toString());
-		
-//		testDatabase();
 	}
-
-//	private static void testDatabase() {
-//		PlayerService dao = SpringUtil.getBean(PlayerService.class);
-//		Player player = dao.getPlayer(1);
-//		System.err.println(player == null ? "nil" : player.getName());
-//	}
 
 }

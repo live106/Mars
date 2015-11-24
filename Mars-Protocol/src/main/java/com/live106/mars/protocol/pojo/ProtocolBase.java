@@ -11,8 +11,8 @@ import com.live106.mars.protocol.thrift.ProtocolHeader;
 import io.netty.buffer.ByteBuf;
 
 /**
+ * Netty 协议消息基类
  * @author live106 @creation Oct 8, 2015
- *
  */
 public abstract class ProtocolBase implements IProtocol {
 

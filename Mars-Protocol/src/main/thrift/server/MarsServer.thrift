@@ -2,6 +2,7 @@ namespace java com.live106.mars.protocol.thrift
 
 include "../client/MarsProtocol.thrift"
 include "../client/CLogin.thrift"
+include "../client/CSystem.thrift"
 
 struct RequestServerLogin
 {
@@ -19,9 +20,9 @@ service IUserService
 {
 	string ping(1: string visitor)
 	
-	CLogin.ResponseAuthServerPublicKey getPubKey(1: CLogin.RequestAuthServerPublicKey request, 2: string channelId)
-	CLogin.ResponseSendClientPublicKey sendPubKey(1: CLogin.RequestSendClientPublicKey request, 2: string channelId)
-	CLogin.ResponseUserLogin doLogin(1: CLogin.RequestUserLogin request, 2: string channelId)
+	CLogin.ResponseAuthServerPublicKey getPubKey(1: CLogin.RequestAuthServerPublicKey request, 2: string channelId) throws (1: CSystem.Notify notify)
+	CLogin.ResponseSendClientPublicKey sendPubKey(1: CLogin.RequestSendClientPublicKey request, 2: string channelId) throws (1: CSystem.Notify notify)
+	CLogin.ResponseUserLogin doLogin(1: CLogin.RequestUserLogin request, 2: string channelId) throws (1: CSystem.Notify notify)
 	
 }
 

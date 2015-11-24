@@ -27,8 +27,8 @@ import com.live106.mars.util.LoggerHelper;
 import com.live106.mars.protocol.thrift.game.MessageUserSecureInfo;
 
 /**
+ * 玩家RPC服务实现类
  * @author live106 @creation Oct 23, 2015
- *
  */
 @Service
 public class GamePlayerServiceRpc implements Iface {
@@ -43,12 +43,18 @@ public class GamePlayerServiceRpc implements Iface {
 		return "hello " + visitor;
 	}
 
+	/**
+	 * 保存玩家安全信息
+	 */
 	@Override
 	public boolean setPlayerSecureKey(MessageUserSecureInfo secureInfo) throws TException {
 		boolean result = playerService.addPlayerSecureInfo(secureInfo);
 		return result;
 	}
 
+	/**
+	 * 处理玩家连接游戏服
+	 */
 	@Override
 	public Map<com.live106.mars.protocol.thrift.ResponseGameConnect,Boolean> clientLogin(ReuqestGameConnect request) throws TException {
 		ResponseGameConnect resp = new ResponseGameConnect();
@@ -56,14 +62,13 @@ public class GamePlayerServiceRpc implements Iface {
 			boolean result = playerService.checkUserConnect(request);
 			resp.setResult(result);
 			if (result) {
-				//检查是否已有角色
-				//生成随机角色名称,及角色id
+				//记录玩家登陆数据
 				resp.setMsg("连接游戏服务器成功！");
 			} else {
 				resp.setMsg("通行证无效，请重新登录！");
 			}
 			
-			LoggerHelper.debug(logger, () -> String.format("user %d connect to game server %s", request.getUid(), result));
+			LoggerHelper.debug(logger, () -> String.format("User %d connect to game server %s", request.getUid(), result));
 			
 		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
 				| BadPaddingException | InvalidAlgorithmParameterException e) {

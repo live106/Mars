@@ -8,12 +8,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.live106.mars.protocol.handler.ProtocolMessageRPCDispacher;
 
 /**
+ * <h2>协议消息队列管理类</h2>
+ * <p>后期可考虑使用RabbitMQ、ZeroMQ、Disruptor等提高效率</p>
+ * <br>
  * @author live106 @creation Oct 9, 2015
- *
  */
 public class ProtocolMQ {
 	
-	private final static int QUEUE_CAPACITY = 1000;//FIXME configurable
+	private final static int QUEUE_CAPACITY = 1000;//TODO configurable
 	
 	private volatile static LinkedBlockingQueue<ProtocolMessage> messages = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 	

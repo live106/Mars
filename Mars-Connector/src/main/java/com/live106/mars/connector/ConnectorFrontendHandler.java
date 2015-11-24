@@ -23,8 +23,8 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
 /**
+ * 前端消息handler,直接将消息转发至后端Master进行处理
  * @author None
- *
  */
 public class ConnectorFrontendHandler extends ChannelHandlerAdapter {
 	
@@ -37,7 +37,7 @@ public class ConnectorFrontendHandler extends ChannelHandlerAdapter {
 	private Bootstrap bootstrap;
 	private Channel inboundChannel;
 	
-	private static ScheduledThreadPoolExecutor scheduleExecutor = new ScheduledThreadPoolExecutor(5);//FIXME size
+	private static ScheduledThreadPoolExecutor scheduleExecutor = new ScheduledThreadPoolExecutor(5);
 
 	public ConnectorFrontendHandler(String remoteHost, int remotePort) {
         this.remoteHost = remoteHost;
@@ -54,12 +54,15 @@ public class ConnectorFrontendHandler extends ChannelHandlerAdapter {
 		connectMaster();
 	}
 
+	/**
+	 * 初始化连接至Master的Netty客户端
+	 * @param ctx
+	 * @param inboundChannel
+	 */
 	private void initBootstrap(ChannelHandlerContext ctx, final Channel inboundChannel) {
 		bootstrap = new Bootstrap();
 		bootstrap.group(inboundChannel.eventLoop()).channel(ctx.channel().getClass())
 				.handler(
-						// new
-						// ConnectorBackendHandler(inboundChannel)).option(ChannelOption.AUTO_READ, false)
 						new ChannelInitializer<SocketChannel>() {
 							@Override
 							protected void initChannel(SocketChannel ch) throws Exception {
@@ -68,8 +71,11 @@ public class ConnectorFrontendHandler extends ChannelHandlerAdapter {
 						})
 				.option(ChannelOption.AUTO_READ, false);
 	}
-	
-	public ChannelFuture connectMaster() {
+	/**
+	 * 连接至Master
+	 * @return
+	 */
+	private ChannelFuture connectMaster() {
 		ChannelFuture f = bootstrap.connect(remoteHost, remotePort);
 		outboundChannel = f.channel();
 		f.addListener(new ChannelFutureListener() {
@@ -80,10 +86,8 @@ public class ConnectorFrontendHandler extends ChannelHandlerAdapter {
 					// connection complete start to read first data
 					inboundChannel.read();
 				} else {
-					logger.debug(String.format("channel %s start reconnect master in the schedule executor after 2 seconds", inboundChannel.id()));
+					logger.debug(String.format("Channel %s start reconnect master in the schedule executor after 2 seconds", inboundChannel.id()));
 					scheduleExecutor.schedule(() -> connectMaster(), 2, TimeUnit.SECONDS);
-					
-//					f.channel().eventLoop().schedule(() -> connectMaster(), 5, TimeUnit.SECONDS);
 				}
 			}
 		});
@@ -93,6 +97,7 @@ public class ConnectorFrontendHandler extends ChannelHandlerAdapter {
 	@Override
 	public void channelRead(final ChannelHandlerContext ctx, Object msg) {
 		if (outboundChannel.isActive()) {
+			//数据写入后端服务器
 			outboundChannel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
 				@Override
 				public void operationComplete(ChannelFuture future) {
@@ -106,7 +111,7 @@ public class ConnectorFrontendHandler extends ChannelHandlerAdapter {
 				}
 			});
 		} else {
-			//FIXME how to handler the message between disconnected and reconnected ?
+			//TODO handle the message between disconnected and reconnected ?
 			connectMaster();
 		}
 	}

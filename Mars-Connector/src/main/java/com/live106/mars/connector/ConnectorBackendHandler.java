@@ -12,11 +12,11 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
+ * 后端消息处理，转发至对应前端
  * @author None
- *
  */
 
-@Sharable//TODO sharable or not?
+@Sharable//XXX sharable or not?
 public class ConnectorBackendHandler extends ChannelHandlerAdapter {
 
 	private final Channel inboundChannel;
@@ -33,6 +33,7 @@ public class ConnectorBackendHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelRead(final ChannelHandlerContext ctx, Object msg) {
+		//数据写入前端Channel
 		inboundChannel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) {

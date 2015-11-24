@@ -32,6 +32,7 @@ public class ConsoleHandler {
 	private static final String HELP_HEADER = "header";
 	private static final String START = "start";
 	private static final String STOP = "stop";
+	private static final String CHKARCHIVE = "chkArchive";
 	private static final String SAVE = "save";
 	private static final String LOAD = "load";
 
@@ -54,6 +55,11 @@ public class ConsoleHandler {
 		{
 			Options options = new Options();
 			commandOption.put(STOP, options);
+		}
+		//检查存档时间点
+		{
+			Options options = new Options();
+			commandOption.put(CHKARCHIVE, options);
 		}
 		//保存存档
 		{
@@ -127,6 +133,11 @@ public class ConsoleHandler {
 			{
 				break;
 			}
+			case CHKARCHIVE:
+			{
+				checkArchive(writer);
+				break;
+			}
 			case SAVE:
 			{
 				saveArchive();
@@ -144,6 +155,19 @@ public class ConsoleHandler {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void checkArchive(PrintWriter writer) {
+		synchronized (ClientRunner.runners) {
+			for (ClientRunner runner : ClientRunner.runners) {
+				try {
+					runner.setConsoleWriter(writer);
+					runner.checkArchive();
+				} catch (TException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private void loadArchive() {

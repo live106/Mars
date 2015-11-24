@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.live106.mars.concurrent.MarsDefaultThreadFactory;
 
 public class Console {
-	private static String PROMPT = "Mars-Client> ";
+	public static String PROMPT = "Mars-Client> ";
 
 	private static Logger log = LoggerFactory.getLogger(Console.class);
 	private static ExecutorService executor = Executors.newCachedThreadPool(new MarsDefaultThreadFactory("console"));

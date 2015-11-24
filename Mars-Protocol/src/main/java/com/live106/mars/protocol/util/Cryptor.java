@@ -20,15 +20,13 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
+ * ≥£”√º”√‹
  * @author live106 @creation Oct 19, 2015
- *
  */
 public class Cryptor {
-	private static final IvParameterSpec IV_PARAMETER_SPEC = new IvParameterSpec(new byte[16]);
 	public final static String RSA = "RSA";
 	public final static String AES4CIPHER = "AES/ECB/PKCS5Padding";
 	public final static String AES = "AES";
@@ -36,22 +34,6 @@ public class Cryptor {
 	private String algorithm = "RSA";
 	private KeyPair keyPair;
 	private SecretKey secretKey;
-	
-//	private static final ThreadLocal<Cryptor> cyrptors = new ThreadLocal<Cryptor>() {
-//		@Override
-//		protected Cryptor initialValue() {
-//			return new Cryptor();
-//		}
-//	};
-	
-//	public Cryptor() {
-//	}
-//	
-//	public static Cryptor get(String algorithm) {
-//		Cryptor cryptor = cyrptors.get();
-//		cryptor.algorithm = algorithm;
-//		return cryptor;
-//	}
 	
 	public Cryptor(String algorithm) {
 		this.algorithm = algorithm;
@@ -101,7 +83,6 @@ public class Cryptor {
 		case AES:
 		{
 			Cipher cipher = Cipher.getInstance(AES4CIPHER);
-//			cipher.init(opmode, secretKey, IV_PARAMETER_SPEC);
 			cipher.init(opmode, secretKey);
 			return cipher.doFinal(data);
 		}
@@ -142,11 +123,9 @@ public class Cryptor {
 	public String getSecretKey() {
 		String stringKey = new String(secretKey.getEncoded(), StandardCharsets.UTF_8);
 		return new String(Base64.getEncoder().encode(stringKey.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
-//		return new String(secretKey.getEncoded(), StandardCharsets.UTF_8);
 	}
 	
 	public void setSecretKey(String key) {
 		this.secretKey = new SecretKeySpec(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8)), algorithm);
-//		this.secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), algorithm);
 	}
 }

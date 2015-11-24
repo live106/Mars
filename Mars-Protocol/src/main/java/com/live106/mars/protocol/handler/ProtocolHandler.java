@@ -8,8 +8,8 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
+ * Netty协议处理类，直接将协议消息加入待处理消息队列
  * @author live106 @creation Oct 9, 2015
- *
  */
 
 public class ProtocolHandler extends ChannelHandlerAdapter {
@@ -18,7 +18,7 @@ public class ProtocolHandler extends ChannelHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ProtocolBase pojo = (ProtocolBase) msg;
 		ProtocolMessage message = new ProtocolMessage(pojo, ctx);
-		ProtocolMQ.addMessage(message);//TODO is it necessary to start a thread ?
+		ProtocolMQ.addMessage(message);
 	}
 	
 	@Override
