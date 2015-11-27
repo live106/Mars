@@ -2,6 +2,7 @@
 .recommenders
 .gradle
 .settings
+logs
 *.log
 bin
 build

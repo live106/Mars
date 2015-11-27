@@ -20,9 +20,13 @@ import javax.crypto.NoSuchPaddingException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.JsonObject;
 import com.live106.mars.account.bean.UserPassport;
 import com.live106.mars.account.db.mapper.UserMapper;
 import com.live106.mars.account.db.model.User;
@@ -31,6 +35,7 @@ import com.live106.mars.account.redis.IRedisConstants;
 import com.live106.mars.account.redis.UserRedis;
 import com.live106.mars.protocol.util.Cryptor;
 import com.live106.mars.protocol.util.ProtocolCrypto;
+import com.live106.mars.util.LoggerHelper;
 
 /**
  * <h1>账号服务类</h1>
@@ -45,10 +50,14 @@ import com.live106.mars.protocol.util.ProtocolCrypto;
 @Service
 public class UserService implements IRedisConstants {
 	
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+	
 	@Autowired
 	private UserMapper userDao;
 	@Autowired
 	private UserRedis userRedis;
+	@Autowired
+	private RpcClientServiceFactory rpcClientServiceFactory;
 	
 	/* DH + AES start */ 
 	private Map<String, Object> dhServerKeyMap;
@@ -174,7 +183,7 @@ public class UserService implements IRedisConstants {
 	 * @throws InvalidAlgorithmParameterException
 	 * @throws TimeoutException 
 	 */
-	public String aesDecrypt(String channelId, String data) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, TimeoutException {
+	public String decryptAES(String channelId, String data) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, TimeoutException {
 		String key = aesKeyMap.get(channelId);
 		
 		if (key == null) {
@@ -252,6 +261,11 @@ public class UserService implements IRedisConstants {
 		return (machineId != null) && (machineId.length() >= 32) || true;
 	}
 
+	/**
+	 * 机器码登录
+	 * @param machineId
+	 * @return
+	 */
 	public Map<String, String> loginByMachineId(String machineId) {
 		Map<String, String> usermap = null;
 		long userId = userRedis.getUserIdByMachineId(machineId);
@@ -264,6 +278,84 @@ public class UserService implements IRedisConstants {
 		usermap.put(additional_field_userid, String.valueOf(userId));
 		
 		return usermap;
+	}
+
+	/**
+	 * SDK登录
+	 * @param channel
+	 * @param sdkChannel
+	 * @param uid
+	 * @param serverId
+	 * @param pluginId
+	 * @return
+	 */
+	public Map<String, String> doLoginBySDK(String sdkChannel, String sdkUid) {
+		Map<String, String> usermap = null;
+		long userId = userRedis.getUserIdBySDK(sdkChannel, sdkUid);
+		if (userId > 0) {
+			usermap = userRedis.getUser(String.format("%s:%d", field_user_prefix, userId));
+			LoggerHelper.info(logger, ()->String.format("SDK已映射用户登录userSDK:%s, sdkUid:%s", sdkChannel, sdkUid));
+		} else {
+			usermap = userRedis.addUserBySDK(sdkChannel, sdkUid);
+			userId = userRedis.getUserIdBySDK(sdkChannel, sdkUid);
+			LoggerHelper.info(logger, ()->String.format("SDK登录增加用户映射userSDK:%s, sdkUid:%s", sdkChannel, sdkUid));
+		}
+		usermap.put(additional_field_userid, String.valueOf(userId));
+		
+		return usermap;
+	}
+	
+	/**
+	 * <h2>支付回调触发该方法</h2>
+	 * <p>保存支付数据</p>
+	 * <span>回调传递参数示例</span>
+	 * <p>
+	 * 			 "amount=1" + 
+				 "channel_number=999999" +
+				 "game_user_id=1" + 
+				 "game_id=" + 
+				 "order_id=PB069714081310394265014" + 
+				 "order_type=999" + 
+				 "pay_status 1" + 
+				 "pay_time 2014-08-13 10:39:43" + 
+				 "private_data=" + 
+				 "product_count=0" + 
+				 "product_id=jinbi" + 
+				 "product_name=gold" + 
+				 "server_id=13" + 
+				 "source={\"amount\":\"1\",\"app_id\":\"1738\",\"cp_order_id\":\"PB069714081310394265014\",\"ext1\":\"\",\"ext2\":\"\",\"trans_id\":\"20282\",\"trans_status\":\"1\",\"user_id\":\"1799\",\"sign\":\"08dfe21e1f4f26e334ec3b9b7f419b731dcd8255\"}" + 
+				 "user_id=1799";
+		</p>
+	 * 
+	 * @param json
+	 */
+	public void pay(JsonObject json) {
+		String sdkUid = json.get("user_id").getAsString();
+		String amount = json.get("amount").getAsString();
+		String sdkChannel = json.get("channel_number").getAsString();
+		long userId = userRedis.getUserIdBySDK(sdkChannel, sdkUid);
+		if (userId < 0) {
+			LoggerHelper.info(logger, ()->String.format("用户未找到sdkUid:%d, 请求支付%s", sdkUid, json.toString()));
+			return;
+		}
+		userRedis.addUserPayLog(userId, json.toString());
+		userRedis.addUserPay(userId, amount);
+		
+		String orderId = json.get("order_id").getAsString();
+		//通知游戏服务器
+		try {
+			rpcClientServiceFactory.getGamePlayerService().pay(userId, Integer.valueOf(amount).intValue(), orderId, json.toString());
+		} catch (TException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public RpcClientServiceFactory getRpcClientServiceFactory() {
+		return rpcClientServiceFactory;
+	}
+
+	public void setRpcClientServiceFactory(RpcClientServiceFactory rpcClientServiceFactory) {
+		this.rpcClientServiceFactory = rpcClientServiceFactory;
 	}
 
 }

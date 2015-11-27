@@ -5,6 +5,7 @@ include "../client/CStore.thrift"
 include "../client/CArchive.thrift"
 include "../client/MarsProtocol.thrift"
 include "../client/CSystem.thrift"
+include "../client/CGold.thrift"
 
 struct MessageUserSecureInfo
 {
@@ -18,10 +19,14 @@ service IGamePlayerService
 {
 	string ping(1: string visitor)
 	
-	bool setPlayerSecureKey(1: MessageUserSecureInfo secureInfo)
-	
+	//for client request transfer by Master	
 	//CLogin.ResponseGameConnect clientLogin(1: CLogin.ReuqestGameConnect request)
 	map<CLogin.ResponseGameConnect, bool> clientLogin(1: CLogin.ReuqestGameConnect request) throws (1: CSystem.Notify notify)
+	map<CGold.ResponseSyncGold, bool> syncGold(1: CGold.RequestSyncGold request, 2: MarsProtocol.ProtocolHeader header) throws  (1: CSystem.Notify notify)
+	
+	//for server module call
+	bool pay(1: i64 userId, 2: i32 amount, 3: string orderId, 4: string plainData) throws (1: CSystem.Notify notify)
+	bool setPlayerSecureKey(1: MessageUserSecureInfo secureInfo)
 }
 
 service IGameStoreService

@@ -34,7 +34,7 @@ public class MessageProcessor<T> {
 		this.processor = processor;
 		this.method = method;
 		try {
-			messageClass = Class.forName(String.format("%s.%s", messageBasePackage, messageName));
+			messageClass = Class.forName(messageName);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}

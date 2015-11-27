@@ -29,7 +29,7 @@ public class Console {
 			@Override
 			public void run() {
 				Console console = new Console();
-				console.listen(8888, new ConsoleHandler());
+				console.listen(10000, new ConsoleHandler());
 			}
 		};
 		new Thread(runnable, "ConsoleListener").start();

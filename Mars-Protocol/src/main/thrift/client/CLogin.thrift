@@ -52,6 +52,8 @@ struct RequestUserLogin
 	4: string sdkToken,
 	5: string machineId,//由于客户端无法获取，由服务器伪造生成
 	6: required LoginType type = LoginType.USER_GUEST
+	7: string sdk
+	8: string sdkChannel
 }
 
 struct ResponseUserLogin

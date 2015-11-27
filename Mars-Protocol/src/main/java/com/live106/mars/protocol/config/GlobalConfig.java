@@ -18,6 +18,7 @@ public class GlobalConfig {
 	
 	public static String accountHost = localhost;
 	public static int accountRpcPort = 10001;
+	public static int accountLoginPort = 8888;
 	
 	public static String gameHost = localhost;
 	public static int gameRpcPort = 9000;

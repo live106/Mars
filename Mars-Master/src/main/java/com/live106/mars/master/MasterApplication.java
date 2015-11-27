@@ -4,10 +4,12 @@
 package com.live106.mars.master;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.thrift.TBase;
 import org.apache.thrift.TMultiplexedProcessor;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
@@ -117,26 +119,41 @@ public class MasterApplication {
 		//TODO reconstruction with reflection
 		Method[] methods = IUserService.Iface.class.getDeclaredMethods();
 		for (Method method : methods) {
-			String messageName = method.getParameterTypes()[0].getSimpleName();
+			if (!Arrays.asList(method.getParameterTypes()[0].getInterfaces()).contains(TBase.class)) {
+				continue;
+			}
+			String messageName = method.getParameterTypes()[0].getName();
+			String simpleMessageName = method.getParameterTypes()[0].getSimpleName();
+			
 			MessageProcessor<IUserService.Iface> messageProcessor = new MessageProcessor<IUserService.Iface>(userRpcClient, method, messageName);
-			processors.put(messageName.hashCode(), messageProcessor);
-			hashes.put(messageName.hashCode(), messageName);
+			processors.put(simpleMessageName.hashCode(), messageProcessor);
+			hashes.put(simpleMessageName.hashCode(), simpleMessageName);
 		}
 		
 		methods = IGamePlayerService.Iface.class.getDeclaredMethods();
 		for (Method method : methods) {
-			String messageName = method.getParameterTypes()[0].getSimpleName();
+			if (!Arrays.asList(method.getParameterTypes()[0].getInterfaces()).contains(TBase.class)) {
+				continue;
+			}
+			String messageName = method.getParameterTypes()[0].getName();
+			String simpleMessageName = method.getParameterTypes()[0].getSimpleName();
+			
 			MessageProcessor<IGamePlayerService.Iface> messageProcessor = new MessageProcessor<IGamePlayerService.Iface>(playerRpcClient, method, messageName);
-			processors.put(messageName.hashCode(), messageProcessor);
-			hashes.put(messageName.hashCode(), messageName);
+			processors.put(simpleMessageName.hashCode(), messageProcessor);
+			hashes.put(simpleMessageName.hashCode(), simpleMessageName);
 		}
 		
 		methods = IGameStoreService.Iface.class.getDeclaredMethods();
 		for (Method method : methods) {
-			String messageName = method.getParameterTypes()[0].getSimpleName();
+			if (!Arrays.asList(method.getParameterTypes()[0].getInterfaces()).contains(TBase.class)) {
+				continue;
+			}
+			String messageName = method.getParameterTypes()[0].getName();
+			String simpleMessageName = method.getParameterTypes()[0].getSimpleName();
+			
 			MessageProcessor<IGameStoreService.Iface> messageProcessor = new MessageProcessor<IGameStoreService.Iface>(gameStoreRpcClient, method, messageName);
-			processors.put(messageName.hashCode(), messageProcessor);
-			hashes.put(messageName.hashCode(), messageName);
+			processors.put(simpleMessageName.hashCode(), messageProcessor);
+			hashes.put(simpleMessageName.hashCode(), simpleMessageName);
 		}
 	}
 	

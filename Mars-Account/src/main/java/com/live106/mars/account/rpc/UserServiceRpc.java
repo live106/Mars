@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import com.live106.mars.account.bean.UserPassport;
 import com.live106.mars.account.redis.IRedisConstants;
-import com.live106.mars.account.service.RpcClientServiceFactory;
 import com.live106.mars.account.service.UserService;
 import com.live106.mars.protocol.thrift.IUserService.Iface;
 import com.live106.mars.protocol.thrift.LoginCode;
@@ -37,6 +36,7 @@ import com.live106.mars.protocol.thrift.ResponseAuthServerPublicKey;
 import com.live106.mars.protocol.thrift.ResponseSendClientPublicKey;
 import com.live106.mars.protocol.thrift.ResponseUserLogin;
 import com.live106.mars.protocol.thrift.game.MessageUserSecureInfo;
+import com.live106.mars.protocol.util.ProtocolSerializer;
 import com.live106.mars.util.LoggerHelper;
 
 /**
@@ -50,8 +50,6 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 	
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private RpcClientServiceFactory rpcClientServiceFactory;
 
 	@Override
 	public String ping(String visitor) throws TException {
@@ -103,6 +101,9 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 	public ResponseUserLogin doLogin(RequestUserLogin request, String channelId) throws TException {
 		Map<String, String> usermap = null;
 		
+		String json = ProtocolSerializer.serializeJson(request);
+		LoggerHelper.debug(logger, ()->String.format("收到登录请求：\n%s", json));
+		
 		ResponseUserLogin resp = new ResponseUserLogin();
 		try {
 			LoginType type = request.getType();
@@ -136,7 +137,7 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 					if (StringUtils.isEmpty(encrytedMachineId)) {
 						machineId = UUID.randomUUID().toString();
 					} else {
-						machineId = userService.aesDecrypt(channelId, encrytedMachineId);
+						machineId = userService.decryptAES(channelId, encrytedMachineId);
 					}
 					if (userService.isValidMachineId(machineId)){
 						usermap = userService.loginByMachineId(machineId);
@@ -146,7 +147,14 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 				}
 			case USER_THIRDPARTY:
 				{
-					throw new Notify("User login type not supported!" + type.name());
+					String sdk = request.getSdk();
+					String sdkUid = request.getSdkUid();
+					String sdkToken = request.getSdkToken();
+					String sdkChannel = request.getSdkChannel();
+					
+					usermap = userService.doLoginBySDK(sdkChannel, sdkUid);
+					
+					break;
 				}
 			default:
 				{
@@ -173,7 +181,7 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 				LoggerHelper.debug(logger, ()->String.format("User %d passport %s", userid, passport.getSecureKey()));
 				
 				//Game Server RPC call
-				boolean result = rpcClientServiceFactory.getGamePlayerService().setPlayerSecureKey(secureInfo);
+				boolean result = userService.getRpcClientServiceFactory().getGamePlayerService().setPlayerSecureKey(secureInfo);
 				
 				logger.info("User {}/{}/{} login through channel {}, notify game server %s", userid, username, usermap.get(field_user_machine_id), channelId, result);
 			} else {
@@ -199,6 +207,9 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 			//remove client public key cache
 			String key = userService.delUserClientKey(channelId);
 			LoggerHelper.debug(logger, ()->String.format("Delete user %d client public key %s after login success. ", resp.getUid(), key));
+			
+			
+			//TODO 登录成功后维护登录用户信息，方便数据统计
 		}
 		
 		return resp;
@@ -289,10 +300,6 @@ public class UserServiceRpc implements Iface, IRedisConstants {
 	
 	public void setUserService(UserService userService) {
 		this.userService = userService;
-	}
-
-	public void setRpcClientServiceFactory(RpcClientServiceFactory rpcClientServiceFactory) {
-		this.rpcClientServiceFactory = rpcClientServiceFactory;
 	}
 
 }
