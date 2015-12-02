@@ -6,6 +6,7 @@ include "../client/CArchive.thrift"
 include "../client/MarsProtocol.thrift"
 include "../client/CSystem.thrift"
 include "../client/CGold.thrift"
+include "../client/CMall.thrift"
 
 struct MessageUserSecureInfo
 {
@@ -23,6 +24,8 @@ service IGamePlayerService
 	//CLogin.ResponseGameConnect clientLogin(1: CLogin.ReuqestGameConnect request)
 	map<CLogin.ResponseGameConnect, bool> clientLogin(1: CLogin.ReuqestGameConnect request) throws (1: CSystem.Notify notify)
 	map<CGold.ResponseSyncGold, bool> syncGold(1: CGold.RequestSyncGold request, 2: MarsProtocol.ProtocolHeader header) throws  (1: CSystem.Notify notify)
+	map<CMall.ResponseBuyCommodity, bool> buyCommondity(1: CMall.RequestBuyCommodity request, 2: MarsProtocol.ProtocolHeader header) throws  (1: CSystem.Notify notify)
+	map<CGold.ResponseSimulateCharge, bool> simulateCharge(1: CGold.RequestSimulateCharge request, 2: MarsProtocol.ProtocolHeader header) throws  (1: CSystem.Notify notify)
 	
 	//for server module call
 	bool pay(1: i64 userId, 2: i32 amount, 3: string orderId, 4: string plainData) throws (1: CSystem.Notify notify)

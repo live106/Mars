@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CommodityInfos>
+	<CommodityInfo ID="1" Price="200" Img="dj-cz" Name="锤子"
+		Tip="万万没想到" />
+	<CommodityInfo ID="2" Price="200" Img="dj-mb" Name="锤子"
+		Tip="万万没想到" />
+	<CommodityInfo ID="3" Price="200" Img="dj-jh" Name="锤子"
+		Tip="万万没想到" />
+	<CommodityInfo ID="4" Price="200" Img="dj-cp" Name="锤子"
+		Tip="万万没想到" />
+	<CommodityInfo ID="5" Price="200" Img="dj-bs" Name="锤子"
+		Tip="万万没想到" />
+	<CommodityInfo ID="6" Price="200" Img="dj-cz" Name="锤子"
+		Tip="万万没想到" />
+	<CommodityInfo ID="7" Price="200" Img="dj-cz" Name="锤子"
+		Tip="万万没想到" />
+</CommodityInfos>

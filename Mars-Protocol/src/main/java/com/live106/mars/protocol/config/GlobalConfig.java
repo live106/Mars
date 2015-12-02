@@ -49,7 +49,7 @@ public class GlobalConfig {
 			connectorHost = config.getString("connector_host", localhost);
 			connectorPort = config.getInt("connector_port", 9999);
 			redisSentinelHost = config.getString("redis_sentinel_host", server_206);
-			redisSentinelPort = config.getInt("redus_sentinel_port", 26379);
+			redisSentinelPort = config.getInt("redis_sentinel_port", 26379);
 		} catch (ConfigurationException e1) {
 			e1.printStackTrace();
 		}

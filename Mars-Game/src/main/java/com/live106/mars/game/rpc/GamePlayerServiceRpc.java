@@ -23,8 +23,12 @@ import com.live106.mars.game.service.PlayerPayService;
 import com.live106.mars.game.service.PlayerService;
 import com.live106.mars.protocol.thrift.Notify;
 import com.live106.mars.protocol.thrift.ProtocolHeader;
+import com.live106.mars.protocol.thrift.RequestBuyCommodity;
+import com.live106.mars.protocol.thrift.RequestSimulateCharge;
 import com.live106.mars.protocol.thrift.RequestSyncGold;
+import com.live106.mars.protocol.thrift.ResponseBuyCommodity;
 import com.live106.mars.protocol.thrift.ResponseGameConnect;
+import com.live106.mars.protocol.thrift.ResponseSimulateCharge;
 import com.live106.mars.protocol.thrift.ResponseSyncGold;
 import com.live106.mars.protocol.thrift.ReuqestGameConnect;
 import com.live106.mars.protocol.thrift.game.IGamePlayerService.Iface;
@@ -124,6 +128,63 @@ public class GamePlayerServiceRpc implements Iface {
 	
 	public void setPlayerService(PlayerService playerService) {
 		this.playerService = playerService;
+	}
+
+	/**
+	 * 购买商品 《消消乐》
+	 */
+	@Override
+	public Map<ResponseBuyCommodity, Boolean> buyCommondity(RequestBuyCommodity request, ProtocolHeader header)
+			throws Notify, TException {
+		//获取请求玩家用户ID
+		int userId = header.getSourceId();
+		//获取用户当前金币数量
+		long gold = playerPayService.getGold(userId);
+		//获取请求购买商品ID
+		int commodityId = request.getCommodityId();
+		//获取请求购买商品数量
+		int number = request.getCommodityNumber();
+		
+		//记录日志
+		LoggerHelper.debug(logger, () -> String.format("玩家%d拥有金币%d,请求购买商品%d数量%d.", userId, gold, commodityId, number));
+		
+		//调用购买商品接口，如果失败会抛出异常，系统会自动下发客户端提示协议Notify
+		long goldLeft = playerPayService.buyCommondity(userId, commodityId, number);
+		
+		//组织返回协议内容
+		ResponseBuyCommodity resp = new ResponseBuyCommodity();
+		resp.setCommodityId(commodityId);
+		resp.setCommodityNumber(number);
+		resp.setResult(true);
+		resp.setGoldLeft(goldLeft);
+		
+		//返回协议内容及是否要求客户端关闭SOCKET选项
+		Map<ResponseBuyCommodity, Boolean> retmap = new HashMap<>();
+		retmap.put(resp, true);
+		
+		return retmap;
+	}
+	
+	/**
+	 * 模拟充值，正式上线关闭
+	 */
+	@Override
+	public Map<ResponseSimulateCharge, Boolean> simulateCharge(RequestSimulateCharge request, ProtocolHeader header)
+			throws Notify, TException {
+		int userId = header.getSourceId();
+		long gold = request.getGold();
+		long totalGold = playerPayService.doPay(userId, gold, "simulate charge");
+		
+		LoggerHelper.info(logger, ()->String.format("玩家%d模拟充值%d,充值后金币%d.", userId, gold, totalGold));
+		
+		ResponseSimulateCharge resp = new ResponseSimulateCharge();
+		resp.setGold(totalGold);
+		
+		//返回协议内容及是否要求客户端关闭SOCKET选项
+		Map<ResponseSimulateCharge, Boolean> retmap = new HashMap<>();
+		retmap.put(resp, true);
+		
+		return retmap;
 	}
 
 }
