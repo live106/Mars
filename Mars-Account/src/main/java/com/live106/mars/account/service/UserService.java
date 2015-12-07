@@ -33,6 +33,7 @@ import com.live106.mars.account.db.model.User;
 import com.live106.mars.account.db.model.UserExample;
 import com.live106.mars.account.redis.IRedisConstants;
 import com.live106.mars.account.redis.UserRedis;
+import com.live106.mars.protocol.thrift.Notify;
 import com.live106.mars.protocol.util.Cryptor;
 import com.live106.mars.protocol.util.ProtocolCrypto;
 import com.live106.mars.util.LoggerHelper;
@@ -260,13 +261,32 @@ public class UserService implements IRedisConstants {
 	public boolean isValidMachineId(String machineId) {
 		return (machineId != null) && (machineId.length() >= 32) || true;
 	}
+	
+	/**
+	 * 账号密码登录
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	public Map<String, String> loginByUsername(String username, String password) {
+		Map<String, String> usermap = null;
+		long userId = userRedis.getUserIdByUsername(username);
+		if (userId > 0) {
+			usermap = userRedis.getUser(String.format("%s:%d", field_user_prefix, userId));
+			String storePasswd = usermap.get(field_user_password);
+			return storePasswd.equals(password) ? usermap : null;
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * 机器码登录
 	 * @param machineId
 	 * @return
+	 * @throws Notify 
 	 */
-	public Map<String, String> loginByMachineId(String machineId) {
+	public Map<String, String> loginByMachineId(String machineId) throws Notify {
 		Map<String, String> usermap = null;
 		long userId = userRedis.getUserIdByMachineId(machineId);
 		if (userId > 0) {
@@ -288,8 +308,9 @@ public class UserService implements IRedisConstants {
 	 * @param serverId
 	 * @param pluginId
 	 * @return
+	 * @throws Notify 
 	 */
-	public Map<String, String> doLoginBySDK(String sdkChannel, String sdkUid) {
+	public Map<String, String> doLoginBySDK(String sdkChannel, String sdkUid) throws Notify {
 		Map<String, String> usermap = null;
 		long userId = userRedis.getUserIdBySDK(sdkChannel, sdkUid);
 		if (userId > 0) {

@@ -49,7 +49,7 @@ public class ProtocolMessageRPCDispacher {
 	}
 	
 	/**
-	 * 协议坚挺线程
+	 * 协议监听线程
 	 */
 	Runnable messageListener = new Runnable() {
 		public void run() {
